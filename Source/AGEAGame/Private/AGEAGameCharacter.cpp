@@ -382,7 +382,7 @@ void AAGEAGameCharacter::EquipPistol()
 			Spawner->CollisionBox->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 			Spawner->AttachRootComponentTo(GetMesh(), "WeaponSocket");
 			CurrentWeapon = Spawner;
-			GEngine->AddOnScreenDebugMessage(-1, 2.f, FColor::Red, "My current weapon is " + CurrentWeapon->WeaponConfig.WeaponName);
+			//GEngine->AddOnScreenDebugMessage(-1, 2.f, FColor::Red, "My current weapon is " + CurrentWeapon->WeaponConfig.WeaponName);
 		}
 	}
 }
@@ -410,14 +410,14 @@ void AAGEAGameCharacter::EquipShotgun()
 			Spawner->CollisionBox->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 			Spawner->AttachRootComponentTo(GetMesh(), "WeaponSocket");
 			CurrentWeapon = Spawner;
-			GEngine->AddOnScreenDebugMessage(-1, 2.f, FColor::Red, "My current weapon is " + CurrentWeapon->WeaponConfig.WeaponName);
+			//GEngine->AddOnScreenDebugMessage(-1, 2.f, FColor::Red, "My current weapon is " + CurrentWeapon->WeaponConfig.WeaponName);
 		}
 		else
 		{
 			Spawner->CollisionBox->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 			Spawner->AttachRootComponentTo(GetMesh(), "WeaponSocket");
 			CurrentWeapon = Spawner;
-			GEngine->AddOnScreenDebugMessage(-1, 2.f, FColor::Red, "My current weapon is " + CurrentWeapon->WeaponConfig.WeaponName);
+			//GEngine->AddOnScreenDebugMessage(-1, 2.f, FColor::Red, "My current weapon is " + CurrentWeapon->WeaponConfig.WeaponName);
 		}
 	}
 }

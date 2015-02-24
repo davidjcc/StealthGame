@@ -16,14 +16,14 @@ ALevelChangeTrigger::ALevelChangeTrigger(const FObjectInitializer& ObjectInitial
 	// Box trigger
 	BoxTrigger = ObjectInitializer.CreateDefaultSubobject<UBoxComponent>(this, "Box Trigger");
 	RootComponent = BoxTrigger;
-	BoxTrigger->SetRelativeScale3D(FVector(1, 1, 5));
+	//BoxTrigger->SetRelativeScale3D(FVector(1, 1, 5));
 	BoxTrigger->bGenerateOverlapEvents = true;
 	BoxTrigger->SetHiddenInGame(true);
 
 	BoxTrigger->OnComponentBeginOverlap.AddDynamic(this, &ALevelChangeTrigger::LevelTriggerEnter);
 
 	// Point light
-	LightIntensity = 100000.f;
+	LightIntensity = 1000.0f;
 	PointLight = ObjectInitializer.CreateDefaultSubobject<UPointLightComponent>(this, "Point Light");
 	PointLight->SetLightColor(FColor::Blue);
 	PointLight->Intensity = LightIntensity;
