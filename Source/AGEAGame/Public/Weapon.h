@@ -35,7 +35,7 @@ struct FWeaponData
 {
 	GENERATED_USTRUCT_BODY()
 
-	// The maximiun amount of ammo a gun can hold
+	// The maximium amount of ammo a gun can hold
 	UPROPERTY(EditDefaultsOnly, Category = Ammo)
 	int32 MaxAmmo;
 
@@ -100,7 +100,7 @@ class AGEAGAME_API AWeapon : public AActor
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Config")
 	USoundCue* WeaponFireSound;
 
-	// The partice effect for the muzzle flash
+	// The particle effect for the muzzle flash
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Config")
 	UParticleSystemComponent* ParticleSystem;
 

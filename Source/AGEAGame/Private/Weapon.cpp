@@ -100,7 +100,7 @@ void AWeapon::ProcessInstantHit(const FHitResult &Impact, const FVector &Origin,
 	AAIGuardCharacter* Guard = Cast<AAIGuardCharacter>(Impact.GetActor());
 	if (Guard)
 	{
-		GEngine->AddOnScreenDebugMessage(-1, 2.f, FColor::Red, "You hit an enemy");
+		//GEngine->AddOnScreenDebugMessage(-1, 2.f, FColor::Red, "You hit an enemy");
 		Guard->GuardUpdateHealth(-(WeaponConfig.WeaponDamage));
 	}
 
@@ -114,9 +114,9 @@ void AWeapon::ProcessInstantHit(const FHitResult &Impact, const FVector &Origin,
 
 void AWeapon::ProjectileFire()
 {
-	// Play sound and particle effec
+	// Play sound and particle effect
 	PlaySoundAtLocation(WeaponFireSound, GetActorLocation());
-	ParticleSystem->ActivateSystem();
+	//ParticleSystem->ActivateSystem();
 }
 
 

@@ -33,7 +33,7 @@ ARocket::ARocket(const FObjectInitializer &ObjectInitializer) : Super(ObjectInit
 	ParticleSystem = ObjectInitializer.CreateDefaultSubobject<UParticleSystemComponent>(this, "Particle Effect");
 	ParticleSystem->AttachTo(RootComponent);
 
-	NoiseEmitter = ObjectInitializer.CreateDefaultSubobject<UPawnNoiseEmitterComponent>(this, TEXT("Noise Emitter"));
+	NoiseEmitter = ObjectInitializer.CreateDefaultSubobject<UPawnNoiseEmitterComponent>(this, "Noise Emitter");
 }
 
 void ARocket::OnCollision(AActor* OtherActor, UPrimitiveComponent* OtherComp,
@@ -42,15 +42,15 @@ void ARocket::OnCollision(AActor* OtherActor, UPrimitiveComponent* OtherComp,
 	if (OtherActor != NULL && OtherActor != this && OtherComp != NULL)
 	{
 		AAIGuardCharacter *Guard = Cast<AAIGuardCharacter>(OtherActor);
-		if (Guard)
+		if (Guard) // Did we hit an AIGuardCharacter?
 		{
-			GEngine->AddOnScreenDebugMessage(-1, 2.f, FColor::Red, "You blew up the enemy");
+			//GEngine->AddOnScreenDebugMessage(-1, 2.f, FColor::Red, "You blew up the enemy");
 			OtherComp->AddImpulseAtLocation(GetVelocity() * 100.f, GetActorLocation());
-			ParticleSystem->ActivateSystem();
+		
+			//ParticleSystem->ActivateSystem();
 
 			NoiseEmitter->MakeNoise(this, 10.0f, GetActorLocation());
-
-
+			
 			Guard->Destroy();
 			Destroy();
 		}		
