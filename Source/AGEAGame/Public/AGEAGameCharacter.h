@@ -35,43 +35,43 @@ class AAGEAGameCharacter : public ACharacter
 	virtual void Tick(float DeltaTime) override;
 
 	// Player's health
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Player Health")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Player Health")
 	float PlayerHealth;
 
 	// Update the player's health minus the damage
 	UFUNCTION(BlueprintCallable, Category = "Player Health")
-	void PlayerTakeDamage(float damage);
+	void PlayerTakeDamage(float Damage);
 
-	// Toggles the player's disguise
-	UFUNCTION(BlueprintCallable, Category = "Player Disguise")
-	void ToggleDisguise();
+	// Toggles the player's stealth
+	UFUNCTION(BlueprintCallable, Category = "Player Stealth")
+	void ToggleStealth();
 
-	UFUNCTION(BlueprintCallable, Category = "Player Disguise")
-	void SetDisguise(bool disguise);
+	UFUNCTION(BlueprintCallable, Category = "Player Stealth")
+	void SetStealth(bool isInStealth);
 
-	// Player's digsuise power amount
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Player Disguise")
-	float DisguiseTime;
+	// Player's stealth value
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Player Stealth")
+	float StealthValue;
 
 	// Is the player invisible?
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Player Disguise")
-	bool isInDisguise;
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Player Stealth")
+	bool IsInStealth;
 
-	// The partice effect for the disguise switch
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Player Disguise")
+	// The particle effect for the disguise switch
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Player Stealth")
 	UParticleSystemComponent* ParticleSystem;
 
 	// The material when the player is in disguise
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Player Disguise")
-	UMaterialInterface* DisguiseMat;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Player Stealth")
+	UMaterialInterface* StealthMaterial;
 
 	// THe player's default material
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Player Disguise")
-	UMaterialInterface* DefaultMat;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Player Stealth")
+	UMaterialInterface* DefaultMaterial;
 
 	// The rate in which the invisiblity meter decreases defaults to 0.04f;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Player")
-	float DisguiseTimeDecayRate;
+	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category = "Player")
+	float StealthDecayRate;
 
 	// The sound to play when the player distracts a guard
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Player")
@@ -85,13 +85,13 @@ class AAGEAGameCharacter : public ACharacter
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Player Attack")
 	bool isAttacking;
 
-	UPROPERTY(visibleAnywhere, BlueprintReadOnly, Category = "Player Distraction")
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Player Distraction")
 	UPawnNoiseEmitterComponent* NoiseEmitter;
 
 	UFUNCTION(BlueprintCallable, Category = "Player Distraction")
 	void MakeDistractionNoise();
 
-	// Called when we press a key, to collect any powerups
+	// Called when we press a key, to collect any power ups
 	UFUNCTION(BlueprintCallable, Category = "Player")
 	void CollectPickup();
 
@@ -108,6 +108,11 @@ class AAGEAGameCharacter : public ACharacter
 
 	UFUNCTION()
 	void OnPlayerCollision(class AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bHit, const FHitResult & hitresult);
+
+	void DeathCheck();
+
+	void StealthCheck();
+	void UpdateStealthValue(float UpdateStealthValue);
 
 protected:
 	

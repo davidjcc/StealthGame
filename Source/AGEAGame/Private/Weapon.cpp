@@ -59,7 +59,7 @@ void AWeapon::FireWeapon()
 	const FHitResult Impact = WeaponTrace(StartTrace, EndTrace);
 
 	// Play sound and particle effect
-	PlaySoundAtLocation(WeaponFireSound, GetActorLocation());
+	UGameplayStatics::PlaySoundAtLocation(this, WeaponFireSound, GetActorLocation());
 	ParticleSystem->ActivateSystem();
 
 	// Process the hit after firing weapon
@@ -115,7 +115,7 @@ void AWeapon::ProcessInstantHit(const FHitResult &Impact, const FVector &Origin,
 void AWeapon::ProjectileFire()
 {
 	// Play sound and particle effect
-	PlaySoundAtLocation(WeaponFireSound, GetActorLocation());
+	UGameplayStatics::PlaySoundAtLocation(this, WeaponFireSound, GetActorLocation());
 	//ParticleSystem->ActivateSystem();
 }
 

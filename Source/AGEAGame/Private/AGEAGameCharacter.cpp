@@ -61,9 +61,9 @@ AAGEAGameCharacter::AAGEAGameCharacter(const FObjectInitializer& ObjectInitializ
 	
 	PlayerHealth = 100;
 	CameraZoomRate = 75.f;
-	DisguiseTime = 100.f;
-	isInDisguise = false;
-	DisguiseTimeDecayRate = 0.3f;
+	StealthValue = 100.f;
+	IsInStealth = false;
+	StealthDecayRate = 0.3f;
 	isAttacking = false;
 
 	Inventory.SetNum(3, false);
@@ -102,8 +102,8 @@ void AAGEAGameCharacter::SetupPlayerInputComponent(class UInputComponent* InputC
 	InputComponent->BindAction("ZoomCameraIn", IE_Pressed, this, &AAGEAGameCharacter::ZoomCameraIn);
 	
 	// Handle the player's invisibility key binding
-	InputComponent->BindAction("ToggleDisguise", IE_Pressed, this, &AAGEAGameCharacter::ToggleDisguise);
-	InputComponent->BindAction("ToggleDisguise", IE_Released, this, &AAGEAGameCharacter::ToggleDisguise);
+	InputComponent->BindAction("ToggleStealth", IE_Pressed, this, &AAGEAGameCharacter::ToggleStealth);
+	InputComponent->BindAction("ToggleStealth", IE_Released, this, &AAGEAGameCharacter::ToggleStealth);
 
 	// Handle whether the player is punching or not
 	InputComponent->BindAction("Attack", IE_Pressed, this, &AAGEAGameCharacter::ToggleAttack);
@@ -236,55 +236,30 @@ void AAGEAGameCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	// If the player is invisible then decrease the InvisibilityAmount.
-	// If InvisibilityAmount becomes zero or below then the player becomes visible again.
-	// Then increase InvisibllityAmount.
-	if (isInDisguise)
-	{
-		DisguiseTime -= DisguiseTimeDecayRate;
-		if (DisguiseTime <= 0.f)
-		{
-			DisguiseTime = 0.f;
-			ToggleDisguise();
-			GetMesh()->SetMaterial(0, DefaultMat);
-		}
-	}
-	else
-	{
-		DisguiseTime += DisguiseTimeDecayRate / 3.0f;
-		if (DisguiseTime >= 100.f)
-		{
-			DisguiseTime = 100.f;
-		}
-	}
+	StealthCheck();
 
-	if (PlayerHealth <= 0)
-	{
-		GetWorld()->ServerTravel("/Game/Maps/GameOver");
-	}
+	DeathCheck();
 
 	CollectPickup();
 }
 
-void AAGEAGameCharacter::ToggleDisguise()
+void AAGEAGameCharacter::ToggleStealth()
 {
-	if (!isInDisguise)
+	if (!IsInStealth)
 	{
-		isInDisguise = true;
-		//ParticleSystem->ActivateSystem();
-		GetMesh()->SetMaterial(0, DisguiseMat);
+		IsInStealth = true;
+		GetMesh()->SetMaterial(0, StealthMaterial);
 	}
 	else
 	{
-		isInDisguise = false;
-		//ParticleSystem->ActivateSystem();
-		GetMesh()->SetMaterial(0, DefaultMat);
+		IsInStealth = false;
+		GetMesh()->SetMaterial(0, DefaultMaterial);
 	}
 }
 
-void AAGEAGameCharacter::SetDisguise(bool disguise)
+void AAGEAGameCharacter::SetStealth(bool disguise)
 {
-	isInDisguise = disguise;
+	IsInStealth = disguise;
 }
 
 void AAGEAGameCharacter::SetIsAttacking(bool attacking)
@@ -307,7 +282,7 @@ void AAGEAGameCharacter::ToggleAttack()
 void AAGEAGameCharacter::MakeDistractionNoise()
 {
 	NoiseEmitter->MakeNoise(this, 10.0f, GetActorLocation());
-	PlaySoundAtLocation(DistractionSound, GetActorLocation());
+	UGameplayStatics::PlaySoundAtLocation(this, DistractionSound, GetActorLocation());
 }
 
 void AAGEAGameCharacter::FireWeapon()
@@ -452,7 +427,42 @@ void AAGEAGameCharacter::EquipRocketLauncher()
 			Spawner->CollisionBox->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 			Spawner->AttachRootComponentTo(GetMesh(), "WeaponSocket");
 			CurrentWeapon = Spawner;
-			GEngine->AddOnScreenDebugMessage(-1, 2.f, FColor::Black, "My current weapon is " + CurrentWeapon->WeaponConfig.WeaponName);
 		}
 	}
+}
+
+void AAGEAGameCharacter::DeathCheck()
+{
+	if (PlayerHealth <= 0)
+	{
+		GetWorld()->ServerTravel("/Game/Maps/GameOver");
+	}
+
+}
+
+void AAGEAGameCharacter::StealthCheck()
+{
+	if (IsInStealth) {
+		StealthValue -= StealthDecayRate;
+		if (StealthValue <= 0.f) {
+			StealthValue = 0.f;
+			ToggleStealth();
+			GetMesh()->SetMaterial(0, StealthMaterial);
+			//GEngine->AddOnScreenDebugMessage(-1, 2.f, FColor::Black, "In Stealth");
+		}
+	}
+	else {
+		GetMesh()->SetMaterial(0, DefaultMaterial);
+		//GEngine->AddOnScreenDebugMessage(-1, 2.f, FColor::Black, "Not in Stealth");
+	}
+}
+
+void AAGEAGameCharacter::UpdateStealthValue(float StealthValue)
+{
+	this->StealthValue += StealthValue;
+
+	if (StealthValue >= 100.0f)
+		StealthValue = 100.0f;
+	if (StealthValue <= 0.0f)
+		StealthValue = 0.0f;
 }

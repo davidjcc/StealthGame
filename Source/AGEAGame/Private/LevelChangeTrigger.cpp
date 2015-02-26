@@ -48,7 +48,7 @@ void ALevelChangeTrigger::LevelTriggerEnter(class AActor* OtherActor, class UPri
 
 		if (isSoundPlaying == false)
 		{
-			PlaySoundAtLocation(Sound, GetActorLocation());
+			UGameplayStatics::PlaySoundAtLocation(this, Sound, GetActorLocation());
 			isSoundPlaying = true;
 		}
 
