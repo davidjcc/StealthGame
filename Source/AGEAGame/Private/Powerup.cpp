@@ -38,6 +38,6 @@ void APowerup::Tick(float DeltaTime)
 
 	FRotator actorRotation = GetActorRotation();
 	actorRotation.Yaw += RotationRate * DeltaTime;
-	actorRotation.Roll += RotationRate * DeltaTime;
+	//actorRotation.Roll += RotationRate * DeltaTime;
 	SetActorRotation(actorRotation);
 }
