@@ -3,6 +3,7 @@
 #include "AGEAGame.h"
 #include "AGEAGameCharacter.h"
 #include "HealthPowerup.h"
+#include "StealthPowerup.h"
 #include "ParticleDefinitions.h"
 #include "Components/PawnNoiseEmitterComponent.h"
 #include "Engine.h"
@@ -89,21 +90,15 @@ void AAGEAGameCharacter::SetupPlayerInputComponent(class UInputComponent* InputC
 	// "turn" handles devices that provide an absolute delta, such as a mouse.
 	// "turnrate" is for devices that we choose to treat as a rate of change, such as an analog joystick
 	InputComponent->BindAxis("Turn", this, &APawn::AddControllerYawInput);
-	InputComponent->BindAxis("TurnRate", this, &AAGEAGameCharacter::TurnAtRate);
-	InputComponent->BindAxis("LookUp", this, &APawn::AddControllerPitchInput);
-	InputComponent->BindAxis("LookUpRate", this, &AAGEAGameCharacter::LookUpAtRate);
-
-	// handle touch devices
-	InputComponent->BindTouch(IE_Pressed, this, &AAGEAGameCharacter::TouchStarted);
-	InputComponent->BindTouch(IE_Released, this, &AAGEAGameCharacter::TouchStopped);
+	InputComponent->BindAxis("LookUp", this, &APawn::AddControllerPitchInput)
 
 	//// Handle camera zoom in and out key bindings
 	InputComponent->BindAction("ZoomCameraOut", IE_Pressed, this, &AAGEAGameCharacter::ZoomCameraOut);
 	InputComponent->BindAction("ZoomCameraIn", IE_Pressed, this, &AAGEAGameCharacter::ZoomCameraIn);
 	
 	// Handle the player's invisibility key binding
-	InputComponent->BindAction("ToggleStealth", IE_Pressed, this, &AAGEAGameCharacter::ToggleStealth);
-	InputComponent->BindAction("ToggleStealth", IE_Released, this, &AAGEAGameCharacter::ToggleStealth);
+	InputComponent->BindAction("ActivateStealth", IE_Pressed, this, &AAGEAGameCharacter::ActivateStealth);
+	InputComponent->BindAction("ActivateStealth", IE_Released, this, &AAGEAGameCharacter::DeactivateStealth);
 
 	// Handle whether the player is punching or not
 	InputComponent->BindAction("Attack", IE_Pressed, this, &AAGEAGameCharacter::ToggleAttack);
@@ -119,36 +114,6 @@ void AAGEAGameCharacter::SetupPlayerInputComponent(class UInputComponent* InputC
 	InputComponent->BindAction("EquipWeaponSlot1", IE_Pressed, this, &AAGEAGameCharacter::EquipPistol);
 	InputComponent->BindAction("EquipWeaponSlot2", IE_Pressed, this, &AAGEAGameCharacter::EquipShotgun);
 	InputComponent->BindAction("EquipWeaponSlot3", IE_Pressed, this, &AAGEAGameCharacter::EquipRocketLauncher);
-}
-
-
-void AAGEAGameCharacter::TouchStarted(ETouchIndex::Type FingerIndex, FVector Location)
-{
-	// jump, but only on the first touch
-	if (FingerIndex == ETouchIndex::Touch1)
-	{
-		Jump();
-	}
-}
-
-void AAGEAGameCharacter::TouchStopped(ETouchIndex::Type FingerIndex, FVector Location)
-{
-	if (FingerIndex == ETouchIndex::Touch1)
-	{
-		StopJumping();
-	}
-}
-
-void AAGEAGameCharacter::TurnAtRate(float Rate)
-{
-	// calculate delta for this frame from the rate information
-	AddControllerYawInput(Rate * BaseTurnRate * GetWorld()->GetDeltaSeconds());
-}
-
-void AAGEAGameCharacter::LookUpAtRate(float Rate)
-{
-	// calculate delta for this frame from the rate information
-	AddControllerPitchInput(Rate * BaseLookUpRate * GetWorld()->GetDeltaSeconds());
 }
 
 void AAGEAGameCharacter::MoveForward(float Value)
@@ -206,7 +171,7 @@ void AAGEAGameCharacter::PlayerTakeDamage(float damage)
 	PlayerHealth -= damage;
 
 	// Min the health at 0
-	if (PlayerHealth <= 0)
+	if (PlayerHealth < 0)
 		PlayerHealth = 0;
 }
 
@@ -229,6 +194,13 @@ void AAGEAGameCharacter::CollectPickup()
 			testPowerup->OnPickedUp();
 			testPowerup->bIsActive = false;
 		}
+
+		AStealthPowerup* const StealthPowerup = Cast<AStealthPowerup>(CollectedActors[i]);
+		if (StealthPowerup && !StealthPowerup->IsPendingKill() && StealthPowerup->bIsActive) {
+			StealthValue += StealthPowerup->UpdateStealthValue;
+			StealthPowerup->OnPickedUp();
+			StealthPowerup->bIsActive = false;
+		}
 	}
 }
 
@@ -236,25 +208,25 @@ void AAGEAGameCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	StealthCheck();
-
 	DeathCheck();
+
+	StealthCheck();
 
 	CollectPickup();
 }
 
-void AAGEAGameCharacter::ToggleStealth()
+void AAGEAGameCharacter::ActivateStealth()
 {
-	if (!IsInStealth)
-	{
+	if (StealthValue > 0.0f && !IsInStealth) {
 		IsInStealth = true;
 		GetMesh()->SetMaterial(0, StealthMaterial);
 	}
-	else
-	{
-		IsInStealth = false;
-		GetMesh()->SetMaterial(0, DefaultMaterial);
-	}
+}
+
+void AAGEAGameCharacter::DeactivateStealth()
+{
+	IsInStealth = false;
+	GetMesh()->SetMaterial(0, DefaultMaterial);
 }
 
 void AAGEAGameCharacter::SetStealth(bool disguise)
@@ -433,8 +405,7 @@ void AAGEAGameCharacter::EquipRocketLauncher()
 
 void AAGEAGameCharacter::DeathCheck()
 {
-	if (PlayerHealth <= 0)
-	{
+	if (PlayerHealth <= 0) {
 		GetWorld()->ServerTravel("/Game/Maps/GameOver");
 	}
 
@@ -444,25 +415,19 @@ void AAGEAGameCharacter::StealthCheck()
 {
 	if (IsInStealth) {
 		StealthValue -= StealthDecayRate;
-		if (StealthValue <= 0.f) {
-			StealthValue = 0.f;
-			ToggleStealth();
-			GetMesh()->SetMaterial(0, StealthMaterial);
-			//GEngine->AddOnScreenDebugMessage(-1, 2.f, FColor::Black, "In Stealth");
-		}
 	}
-	else {
-		GetMesh()->SetMaterial(0, DefaultMaterial);
-		//GEngine->AddOnScreenDebugMessage(-1, 2.f, FColor::Black, "Not in Stealth");
+	if (StealthValue <= 0.0f) {
+		DeactivateStealth();
 	}
+
 }
 
 void AAGEAGameCharacter::UpdateStealthValue(float StealthValue)
 {
 	this->StealthValue += StealthValue;
 
-	if (StealthValue >= 100.0f)
-		StealthValue = 100.0f;
-	if (StealthValue <= 0.0f)
-		StealthValue = 0.0f;
+	if (this->StealthValue >= 100.0f)
+		this->StealthValue = 100.0f;
+	if (this->StealthValue <= 0.0f)
+		this->StealthValue = 0.0f;
 }

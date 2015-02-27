@@ -44,7 +44,10 @@ class AAGEAGameCharacter : public ACharacter
 
 	// Toggles the player's stealth
 	UFUNCTION(BlueprintCallable, Category = "Player Stealth")
-	void ToggleStealth();
+	void ActivateStealth();
+
+	UFUNCTION(BlueprintCallable, Category = "Player Stealth")
+	void DeactivateStealth();
 
 	UFUNCTION(BlueprintCallable, Category = "Player Stealth")
 	void SetStealth(bool isInStealth);
@@ -95,10 +98,10 @@ class AAGEAGameCharacter : public ACharacter
 	UFUNCTION(BlueprintCallable, Category = "Player")
 	void CollectPickup();
 
-	void FireWeapon();
-
+	
+	// WEAPON STUFF
 	AWeapon *CurrentWeapon;
-
+	void FireWeapon();	
 	void EquipPistol();
 	void EquipShotgun();
 	void EquipRocketLauncher();
@@ -130,24 +133,6 @@ protected:
 	UFUNCTION(BlueprintCallable, Category = "Player Attack")
 	void ToggleAttack();
 
-	/** 
-	 * Called via input to turn at a given rate. 
-	 * @param Rate	This is a normalized rate, i.e. 1.0 means 100% of desired turn rate
-	 */
-	void TurnAtRate(float Rate);
-
-	/**
-	 * Called via input to turn look up/down at a given rate. 
-	 * @param Rate	This is a normalized rate, i.e. 1.0 means 100% of desired turn rate
-	 */
-	void LookUpAtRate(float Rate);
-
-	/** Handler for when a touch input begins. */
-	void TouchStarted(ETouchIndex::Type FingerIndex, FVector Location);
-
-	/** Handler for when a touch input stops. */
-	void TouchStopped(ETouchIndex::Type FingerIndex, FVector Location);
-
 	// Zooms the camera in
 	void ZoomCameraIn();
 
@@ -155,7 +140,9 @@ protected:
 	void ZoomCameraOut();
 
 	// Player's inventory
-	TArray<TSubclassOf<AWeapon>> Inventory;
+	TArray<class AWeapon*> Inventory;
+
+	void ProcessWeaponPickup();
 
 protected:
 	// APawn interface

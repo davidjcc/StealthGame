@@ -44,12 +44,6 @@ class AGEAGAME_API ALevelChangeTrigger : public AActor
 	UPROPERTY(VisibleAnywhere, BLueprintReadWrite, Category = "Level Change")
 	float RotationAngle;
 
-	// Used in Tick, this will rotate the actor every update by a defined angle and rate
-	void RotateActorPerTick(float RotationAngle, float RotationRate);
-
-	// Override the tick function
-	virtual void Tick(float DeltaTime) override;
-
 	bool isSoundPlaying;
 
 private:

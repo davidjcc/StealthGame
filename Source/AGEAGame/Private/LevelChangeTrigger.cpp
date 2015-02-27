@@ -56,18 +56,3 @@ void ALevelChangeTrigger::LevelTriggerEnter(class AActor* OtherActor, class UPri
 		GetWorld()->ServerTravel(newLevel);
 	}
 }
-
-
-void ALevelChangeTrigger::Tick(float DeltaTime)
-{
-	Super::Tick(DeltaTime);
-	RotateActorPerTick(RotationAngle, DeltaTime);
-
-}
-
-void ALevelChangeTrigger::RotateActorPerTick(float Angle, float RotationRate)
-{
-	FRotator actorRotation = GetActorRotation();
-	actorRotation.Yaw += RotationAngle * RotationRate;
-	SetActorRotation(actorRotation);
-}

@@ -31,7 +31,7 @@ class AGEAGAME_API APowerup : public AActor
 
 	// The sound to play when the trigger is entered
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Power Up")
-	USoundCue* SoundToPlay;
+	USoundBase* PickupSound;
 
 	// The rate in which the mesh will rotate
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Power Up")

@@ -1,16 +1,16 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "AGEAGame.h"
-#include "HealthPowerup.h"
+#include "StealthPowerup.h"
+
+//AStealthPowerup::AStealthPowerup(const FObjectInitializer& ObjectInitializer)
+//: Super(ObjectInitializer)
+//{
+//	UpdateStealthValue = 10.0f;
+//}
 
 
-AHealthPowerup::AHealthPowerup(const FObjectInitializer& ObjectInitializer)
-: Super(ObjectInitializer)
-{
-	UpdateHealthValue = 20.f;
-}
-
-void AHealthPowerup::OnPickedUp_Implementation()
+void AStealthPowerup ::OnPickedUp_Implementation()
 {
 	// Call the implementation of this function
 	Super::OnPickedUp_Implementation();
@@ -20,4 +20,6 @@ void AHealthPowerup::OnPickedUp_Implementation()
 
 	UGameplayStatics::PlaySoundAtLocation(this, PickupSound, GetActorLocation());
 }
+
+
 
