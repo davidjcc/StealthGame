@@ -10,14 +10,14 @@ AHealthPowerup::AHealthPowerup(const FObjectInitializer& ObjectInitializer)
 	UpdateHealthValue = 20.f;
 }
 
-void AHealthPowerup::OnPickedUp_Implementation()
+void AHealthPowerup::OnCollision(class AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bHit, const FHitResult & hitresult)
 {
-	// Call the implementation of this function
-	Super::OnPickedUp_Implementation();
-
-	// Destroy the actor when the pickup is collected
-	Destroy();
+	AAGEAGameCharacter* Player = Cast<AAGEAGameCharacter>(OtherActor);
+	if (Player) {
+		Player->UpdateHealth(UpdateHealthValue);
+	}
 
 	UGameplayStatics::PlaySoundAtLocation(this, PickupSound, GetActorLocation());
-}
 
+	Destroy();
+}

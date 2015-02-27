@@ -93,11 +93,6 @@ class AAGEAGameCharacter : public ACharacter
 
 	UFUNCTION(BlueprintCallable, Category = "Player Distraction")
 	void MakeDistractionNoise();
-
-	// Called when we press a key, to collect any power ups
-	UFUNCTION(BlueprintCallable, Category = "Player")
-	void CollectPickup();
-
 	
 	// WEAPON STUFF
 	AWeapon *CurrentWeapon;
@@ -116,6 +111,8 @@ class AAGEAGameCharacter : public ACharacter
 
 	void StealthCheck();
 	void UpdateStealthValue(float UpdateStealthValue);
+
+	void UpdateHealth(float UpdateHealthValue) { PlayerHealth += UpdateHealthValue; }
 
 protected:
 	

@@ -2,24 +2,24 @@
 
 #include "AGEAGame.h"
 #include "StealthPowerup.h"
+#include "AGEAGameCharacter.h"
 
-//AStealthPowerup::AStealthPowerup(const FObjectInitializer& ObjectInitializer)
-//: Super(ObjectInitializer)
-//{
-//	UpdateStealthValue = 10.0f;
-//}
-
-
-void AStealthPowerup ::OnPickedUp_Implementation()
+AStealthPowerup::AStealthPowerup(const FObjectInitializer& ObjectInitializer)
+: Super(ObjectInitializer)
 {
-	// Call the implementation of this function
-	Super::OnPickedUp_Implementation();
-
-	// Destroy the actor when the pickup is collected
-	Destroy();
-
-	UGameplayStatics::PlaySoundAtLocation(this, PickupSound, GetActorLocation());
+	UpdateStealthValue = 10.0f;
 }
 
+void AStealthPowerup::OnCollision(class AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bHit, const FHitResult & hitresult)
+{
+	AAGEAGameCharacter* Player = Cast<AAGEAGameCharacter>(OtherActor);
+	if (Player) {
+		Player->UpdateStealthValue(UpdateStealthValue);
+	}
+
+	UGameplayStatics::PlaySoundAtLocation(this, PickupSound, GetActorLocation());
+
+	Destroy();
+}
 
 

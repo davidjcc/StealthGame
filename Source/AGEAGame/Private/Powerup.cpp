@@ -25,12 +25,14 @@ APowerup::APowerup(const FObjectInitializer& ObjectInitializer) : Super(ObjectIn
 	PickupMesh->AttachParent = RootComponent;
 
 	RotationRate = 180.f;
+
+	CollisionSphere->OnComponentBeginOverlap.AddDynamic(this, &ALevelChangeTrigger::OnCollision);
 }
 
-void APowerup::OnPickedUp_Implementation()
-{
-	// There is no default behaviour
-}
+//void APowerup::OnPickedUp_Implementation()
+//{
+//	// There is no default behaviour
+//}
 
 void APowerup::Tick(float DeltaTime)
 {

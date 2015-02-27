@@ -171,37 +171,8 @@ void AAGEAGameCharacter::PlayerTakeDamage(float damage)
 	PlayerHealth -= damage;
 
 	// Min the health at 0
-	if (PlayerHealth < 0)
+	if (PlayerHealth < 0.0f)
 		PlayerHealth = 0;
-}
-
-void AAGEAGameCharacter::CollectPickup()
-{
-	// Get overlapping actors and store them in an array
-	TArray<AActor*> CollectedActors;
-	BoxCollisionComp->GetOverlappingActors(CollectedActors);
-
-	// For each actor collected
-	for (int32 i = 0; i < CollectedActors.Num(); i++)
-	{
-		// Cast the actor to a battery pickup
-		AHealthPowerup* const testPowerup = Cast<AHealthPowerup>(CollectedActors[i]);
-
-		// If cast is successful, and the powerup is valid and active
-		if (testPowerup && !testPowerup->IsPendingKill() && testPowerup->bIsActive)
-		{
-			PlayerHealth += testPowerup->UpdateHealthValue;
-			testPowerup->OnPickedUp();
-			testPowerup->bIsActive = false;
-		}
-
-		AStealthPowerup* const StealthPowerup = Cast<AStealthPowerup>(CollectedActors[i]);
-		if (StealthPowerup && !StealthPowerup->IsPendingKill() && StealthPowerup->bIsActive) {
-			StealthValue += StealthPowerup->UpdateStealthValue;
-			StealthPowerup->OnPickedUp();
-			StealthPowerup->bIsActive = false;
-		}
-	}
 }
 
 void AAGEAGameCharacter::Tick(float DeltaTime)
@@ -212,7 +183,6 @@ void AAGEAGameCharacter::Tick(float DeltaTime)
 
 	StealthCheck();
 
-	CollectPickup();
 }
 
 void AAGEAGameCharacter::ActivateStealth()
@@ -241,12 +211,9 @@ void AAGEAGameCharacter::SetIsAttacking(bool attacking)
 
 void AAGEAGameCharacter::ToggleAttack()
 {
-	if (isAttacking)
-	{
+	if (isAttacking) {
 		isAttacking = false;
-	}
-	else
-	{
+	} else {
 		isAttacking = true;
 	}
 }
@@ -259,8 +226,7 @@ void AAGEAGameCharacter::MakeDistractionNoise()
 
 void AAGEAGameCharacter::FireWeapon()
 {
-	if (CurrentWeapon != NULL)
-	{
+	if (CurrentWeapon != NULL)	{
 		CurrentWeapon->ProcessWeapon();
 	}
 }
@@ -269,8 +235,7 @@ void AAGEAGameCharacter::OnPlayerCollision(class AActor* OtherActor, class UPrim
 {
 	// If OtherActor is a pistol
 	ARifle* Rifle = Cast<ARifle>(OtherActor);
-	if (Rifle)
-	{
+	if (Rifle)	{
 		// Because the inventory is a subclassof we have to get the class
 		Inventory[0] = Rifle->GetClass();
 		GEngine->AddOnScreenDebugMessage(-1, 2.f, FColor::Red, "I just picked up a " + Rifle->WeaponConfig.WeaponName);
@@ -279,8 +244,7 @@ void AAGEAGameCharacter::OnPlayerCollision(class AActor* OtherActor, class UPrim
 
 	// If OtherActor is a shotgun
 	AShotgun *Shotgun = Cast<AShotgun>(OtherActor);
-	if (Shotgun)
-	{
+	if (Shotgun)	{
 		// Because the inventory is a subclassof we have to get the class
 		Inventory[1] = Shotgun->GetClass();
 		GEngine->AddOnScreenDebugMessage(-1, 2.f, FColor::Red, "I just picked up a " + Shotgun->WeaponConfig.WeaponName);
@@ -289,8 +253,7 @@ void AAGEAGameCharacter::OnPlayerCollision(class AActor* OtherActor, class UPrim
 
 	// If OtherActor is a Rocket Launcher
 	ARocketLauncher *RocketLauncher = Cast<ARocketLauncher>(OtherActor);
-	if (RocketLauncher)
-	{
+	if (RocketLauncher)	{
 		Inventory[2] = RocketLauncher->GetClass();
 		GEngine->AddOnScreenDebugMessage(-1, 2.f, FColor::Red, "I just picked up a " + RocketLauncher->WeaponConfig.WeaponName);
 		RocketLauncher->Destroy();
@@ -408,7 +371,6 @@ void AAGEAGameCharacter::DeathCheck()
 	if (PlayerHealth <= 0) {
 		GetWorld()->ServerTravel("/Game/Maps/GameOver");
 	}
-
 }
 
 void AAGEAGameCharacter::StealthCheck()

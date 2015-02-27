@@ -25,10 +25,6 @@ class AGEAGAME_API APowerup : public AActor
 	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category = "Power Up")
 	UStaticMeshComponent* PickupMesh;
 
-	// Function to call when the pickup is collected
-	UFUNCTION(BlueprintNativeEvent)
-	void OnPickedUp();
-
 	// The sound to play when the trigger is entered
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Power Up")
 	USoundBase* PickupSound;
@@ -40,4 +36,6 @@ class AGEAGAME_API APowerup : public AActor
 	// Override the tick function
 	virtual void Tick(float DeltaTime) override;
 	
+	virtual void OnCollision(class AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bHit, const FHitResult & hitresult);
+
 };
