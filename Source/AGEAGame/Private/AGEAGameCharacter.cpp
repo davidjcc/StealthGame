@@ -15,8 +15,8 @@
 AAGEAGameCharacter::AAGEAGameCharacter(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
 {
-
 	CurrentWeapon = NULL;
+	Inventory.SetNum(3, false);
 
 	// Set size for collision capsule
 	GetCapsuleComponent()->InitCapsuleSize(42.f, 96.0f);
@@ -67,10 +67,7 @@ AAGEAGameCharacter::AAGEAGameCharacter(const FObjectInitializer& ObjectInitializ
 	StealthDecayRate = 0.3f;
 	isAttacking = false;
 
-	Inventory.SetNum(3, false);
 
-	// Note: The skeletal mesh and anim blueprint references on the Mesh component (inherited from Character) 
-	// are set in the derived blueprint asset named MyCharacter (to avoid direct content references in C++)
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -80,8 +77,6 @@ void AAGEAGameCharacter::SetupPlayerInputComponent(class UInputComponent* InputC
 {
 	// Set up gameplay key bindings
 	check(InputComponent);
-	InputComponent->BindAction("Jump", IE_Pressed, this, &ACharacter::Jump);
-	InputComponent->BindAction("Jump", IE_Released, this, &ACharacter::StopJumping);
 
 	InputComponent->BindAxis("MoveForward", this, &AAGEAGameCharacter::MoveForward);
 	InputComponent->BindAxis("MoveRight", this, &AAGEAGameCharacter::MoveRight);
@@ -90,11 +85,7 @@ void AAGEAGameCharacter::SetupPlayerInputComponent(class UInputComponent* InputC
 	// "turn" handles devices that provide an absolute delta, such as a mouse.
 	// "turnrate" is for devices that we choose to treat as a rate of change, such as an analog joystick
 	InputComponent->BindAxis("Turn", this, &APawn::AddControllerYawInput);
-	InputComponent->BindAxis("LookUp", this, &APawn::AddControllerPitchInput)
-
-	//// Handle camera zoom in and out key bindings
-	InputComponent->BindAction("ZoomCameraOut", IE_Pressed, this, &AAGEAGameCharacter::ZoomCameraOut);
-	InputComponent->BindAction("ZoomCameraIn", IE_Pressed, this, &AAGEAGameCharacter::ZoomCameraIn);
+	InputComponent->BindAxis("LookUp", this, &APawn::AddControllerPitchInput);
 	
 	// Handle the player's invisibility key binding
 	InputComponent->BindAction("ActivateStealth", IE_Pressed, this, &AAGEAGameCharacter::ActivateStealth);
@@ -110,11 +101,20 @@ void AAGEAGameCharacter::SetupPlayerInputComponent(class UInputComponent* InputC
 	// Handle the weapon fire binding
 	InputComponent->BindAction("FireWeapon", IE_Pressed, this, &AAGEAGameCharacter::FireWeapon);
 
-	// Handle the weapon equip
-	InputComponent->BindAction("EquipWeaponSlot1", IE_Pressed, this, &AAGEAGameCharacter::EquipPistol);
-	InputComponent->BindAction("EquipWeaponSlot2", IE_Pressed, this, &AAGEAGameCharacter::EquipShotgun);
-	InputComponent->BindAction("EquipWeaponSlot3", IE_Pressed, this, &AAGEAGameCharacter::EquipRocketLauncher);
+	// Activate the sneaking system
+	InputComponent->BindAction("ActivateSneak", IE_Pressed, this, &AAGEAGameCharacter::ActivateSneak);
+	InputComponent->BindAction("ActivateSneak", IE_Released, this, &AAGEAGameCharacter::DeactivateSneak);
+
+	// Inventory system
+	InputComponent->BindAction("NextWeapon", IE_Pressed, this, &AAGEAGameCharacter::NextWeapon);
+	InputComponent->BindAction("PrevWeapon", IE_Pressed, this, &AAGEAGameCharacter::PrevWeapon);
 }
+
+//void AAGEAGameCharacter::BeginPlay()
+//{
+//	GiveDefaultWeapon();
+//	
+//}
 
 void AAGEAGameCharacter::MoveForward(float Value)
 {
@@ -145,24 +145,71 @@ void AAGEAGameCharacter::MoveRight(float Value)
 	}
 }
 
-void AAGEAGameCharacter::ZoomCameraIn()
+void AAGEAGameCharacter::NextWeapon()
 {
-	CameraBoom->TargetArmLength -= CameraZoomRate;
-
-	if (CameraBoom->TargetArmLength <= CAM_MIN)
-	{
-		CameraBoom->TargetArmLength = CAM_MIN;
+	GEngine->AddOnScreenDebugMessage(-1, 2.f, FColor::Black, "Trying to select next weapon");
+	if (Inventory[CurrentWeapon->WeaponConfig.Priority]->WeaponConfig.Priority != Inventory.Num()) {
+		if(Inventory[CurrentWeapon->WeaponConfig.Priority + 1] == NULL) {
+			for (int32 i = CurrentWeapon->WeaponConfig.Priority + 1; i < Inventory.Num(); i++) {
+				if (Inventory[i] && Inventory[i]->IsA(AWeapon::StaticClass())) {
+					EquipWeapon(Inventory[i]);
+				}
+			}
+		}
+		else {
+			EquipWeapon(Inventory[CurrentWeapon->WeaponConfig.Priority + 1]);
+		}
 	}
-
+	else {
+		EquipWeapon(Inventory[CurrentWeapon->WeaponConfig.Priority]);
+	}
 }
 
-void AAGEAGameCharacter::ZoomCameraOut()
+void AAGEAGameCharacter::PrevWeapon()
 {
-	CameraBoom->TargetArmLength += CameraZoomRate;
+	GEngine->AddOnScreenDebugMessage(-1, 2.f, FColor::Black, "Trying to select previous weapon");
+	if (Inventory[CurrentWeapon->WeaponConfig.Priority]->WeaponConfig.Priority != 0) {
+		if (Inventory[CurrentWeapon->WeaponConfig.Priority - 1] == NULL) {
+			for (int32 i = CurrentWeapon->WeaponConfig.Priority - 1; i > 0; i--) {
+				if (Inventory[i] && Inventory[i]->IsA(AWeapon::StaticClass())) {
+					EquipWeapon(Inventory[i]);
+				}
+			}
+		}
+		else {
+			EquipWeapon(Inventory[CurrentWeapon->WeaponConfig.Priority - 1]);
+		}
+	}
+	else {
+		EquipWeapon(Inventory[CurrentWeapon->WeaponConfig.Priority]);
+	}
+}
 
-	if (CameraBoom->TargetArmLength >= CAM_MAX)
-	{
-		CameraBoom->TargetArmLength = CAM_MAX;
+void AAGEAGameCharacter::EquipWeapon(AWeapon * Weapon)
+{
+	if (CurrentWeapon != NULL) {
+		CurrentWeapon = Inventory[CurrentWeapon->WeaponConfig.Priority];
+		CurrentWeapon->OnUnequip();
+		CurrentWeapon = Weapon;
+		Weapon->SetOwningPawn(this);
+		Weapon->OnEquip();
+	}
+	else {
+		CurrentWeapon = Weapon;
+		CurrentWeapon = Inventory[CurrentWeapon->WeaponConfig.Priority];
+		CurrentWeapon->SetOwningPawn(this);
+		Weapon->OnEquip();
+	}
+}
+
+void AAGEAGameCharacter::GiveDefaultWeapon()
+{
+	AWeapon * Spawner = GetWorld()->SpawnActor<AWeapon>(WeaponSpawn);
+	if (Spawner) {
+		Inventory[Spawner->WeaponConfig.Priority] = Spawner;
+		CurrentWeapon = Inventory[Spawner->WeaponConfig.Priority];
+		CurrentWeapon->SetOwningPawn(this);
+		CurrentWeapon->OnEquip();
 	}
 }
 
@@ -231,137 +278,35 @@ void AAGEAGameCharacter::FireWeapon()
 	}
 }
 
-void AAGEAGameCharacter::OnPlayerCollision(class AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bHit, const FHitResult & hitresult)
+void AAGEAGameCharacter::OnPlayerCollision(class AActor* OtherActor, class UPrimitiveComponent* OtherComp, 
+	int32 OtherBodyIndex, bool bHit, const FHitResult & hitresult)
 {
-	// If OtherActor is a pistol
-	ARifle* Rifle = Cast<ARifle>(OtherActor);
-	if (Rifle)	{
-		// Because the inventory is a subclassof we have to get the class
-		Inventory[0] = Rifle->GetClass();
-		GEngine->AddOnScreenDebugMessage(-1, 2.f, FColor::Red, "I just picked up a " + Rifle->WeaponConfig.WeaponName);
-		Rifle->Destroy();
-	}
-
-	// If OtherActor is a shotgun
-	AShotgun *Shotgun = Cast<AShotgun>(OtherActor);
-	if (Shotgun)	{
-		// Because the inventory is a subclassof we have to get the class
-		Inventory[1] = Shotgun->GetClass();
-		GEngine->AddOnScreenDebugMessage(-1, 2.f, FColor::Red, "I just picked up a " + Shotgun->WeaponConfig.WeaponName);
-		Shotgun->Destroy();
-	}
-
-	// If OtherActor is a Rocket Launcher
-	ARocketLauncher *RocketLauncher = Cast<ARocketLauncher>(OtherActor);
-	if (RocketLauncher)	{
-		Inventory[2] = RocketLauncher->GetClass();
-		GEngine->AddOnScreenDebugMessage(-1, 2.f, FColor::Red, "I just picked up a " + RocketLauncher->WeaponConfig.WeaponName);
-		RocketLauncher->Destroy();
+	AWeapon* Weapon = Cast<AWeapon>(OtherActor);
+	if (Weapon) {
+		ProcessWeaponPickup(Weapon);
 	}
 }
 
-void AAGEAGameCharacter::EquipPistol()
+void AAGEAGameCharacter::ProcessWeaponPickup(AWeapon * Weapon)
 {
-	GEngine->AddOnScreenDebugMessage(-1, 2.f, FColor::Black, "Attempting to equip pistol");
-
-	FActorSpawnParameters SpawnParams;
-	SpawnParams.Owner = this;
-	SpawnParams.Instigator = Instigator;
-	AWeapon *Spawner = GetWorld()->SpawnActor<AWeapon>(Inventory[0]);
-	if (Spawner)
-	{
-		if (CurrentWeapon != NULL)
-		{
-			for (int32 i = 0; i < 3; i++)
-			{
-				if (Inventory[i] != NULL && Inventory[i]->GetDefaultObject<AWeapon>()->WeaponConfig.WeaponName == CurrentWeapon->WeaponConfig.WeaponName)
-				{
-					Inventory[i] = NULL;
-					Inventory[i] = CurrentWeapon->GetClass();
-					GEngine->AddOnScreenDebugMessage(-1, 2.f, FColor::Red, "I put " + CurrentWeapon->WeaponConfig.WeaponName + " away in slot " + FString::FromInt(i));
-				}
+	if (Weapon != NULL) {
+		if (Inventory[Weapon->WeaponConfig.Priority] == NULL) {
+			AWeapon * Spawner = GetWorld()->SpawnActor<AWeapon>(Weapon->GetClass());
+			if (Spawner) {
+				Inventory[Spawner->WeaponConfig.Priority] = Spawner;
+				GEngine->AddOnScreenDebugMessage(-1, 2.f, FColor::Black, "You picked up a " + Inventory[Spawner->WeaponConfig.Priority]->WeaponConfig.WeaponName);
 			}
-			CurrentWeapon->Destroy();
-			Spawner->CollisionBox->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-			Spawner->AttachRootComponentTo(GetMesh(), "WeaponSocket");
-			CurrentWeapon = Spawner;
-			GEngine->AddOnScreenDebugMessage(-1, 2.f, FColor::Red, "My current weapon is " + CurrentWeapon->WeaponConfig.WeaponName);
+			Weapon->Destroy();
 		}
-		else
-		{
-			Spawner->CollisionBox->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-			Spawner->AttachRootComponentTo(GetMesh(), "WeaponSocket");
-			CurrentWeapon = Spawner;
-			//GEngine->AddOnScreenDebugMessage(-1, 2.f, FColor::Red, "My current weapon is " + CurrentWeapon->WeaponConfig.WeaponName);
-		}
-	}
-}
-
-void AAGEAGameCharacter::EquipShotgun()
-{
-	FActorSpawnParameters SpawnParams;
-	SpawnParams.Owner = this;
-	SpawnParams.Instigator = Instigator;
-	AWeapon *Spawner = GetWorld()->SpawnActor<AWeapon>(Inventory[1]);
-	if (Spawner)
-	{
-		if (CurrentWeapon != NULL)
-		{
-			for (int32 i = 0; i < 3; i++)
-			{
-				if (Inventory[i] != NULL && Inventory[i]->GetDefaultObject<AWeapon>()->WeaponConfig.WeaponName == CurrentWeapon->WeaponConfig.WeaponName)
-				{
-					Inventory[i] = NULL;
-					Inventory[i] = CurrentWeapon->GetClass();
-					GEngine->AddOnScreenDebugMessage(-1, 2.f, FColor::Red, "I put " + CurrentWeapon->WeaponConfig.WeaponName + " away in slot " + FString::FromInt(i));
-				}
+		else {
+			if (Inventory[Weapon->WeaponConfig.Priority]->CurrentAmmo >= 0 && Weapon->CurrentAmmo <= (Inventory[Weapon->WeaponConfig.Priority]->WeaponConfig.MaxAmmo - Inventory[Weapon->WeaponConfig.Priority]->CurrentAmmo)) {
+				Inventory[Weapon->WeaponConfig.Priority]->CurrentAmmo += Weapon->CurrentAmmo;
+				GEngine->AddOnScreenDebugMessage(-1, 2.f, FColor::Red, "Added " + Weapon->CurrentAmmo);
+				Weapon->Destroy();
 			}
-			CurrentWeapon->Destroy();
-			Spawner->CollisionBox->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-			Spawner->AttachRootComponentTo(GetMesh(), "WeaponSocket");
-			CurrentWeapon = Spawner;
-			//GEngine->AddOnScreenDebugMessage(-1, 2.f, FColor::Red, "My current weapon is " + CurrentWeapon->WeaponConfig.WeaponName);
-		}
-		else
-		{
-			Spawner->CollisionBox->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-			Spawner->AttachRootComponentTo(GetMesh(), "WeaponSocket");
-			CurrentWeapon = Spawner;
-			//GEngine->AddOnScreenDebugMessage(-1, 2.f, FColor::Red, "My current weapon is " + CurrentWeapon->WeaponConfig.WeaponName);
-		}
-	}
-}
-
-void AAGEAGameCharacter::EquipRocketLauncher()
-{
-	FActorSpawnParameters SpawnParams;
-	SpawnParams.Owner = this;
-	SpawnParams.Instigator = Instigator;
-	AWeapon *Spawner = GetWorld()->SpawnActor<AWeapon>(Inventory[2]);
-	if (Spawner)
-	{
-		if (CurrentWeapon != NULL)
-		{
-			for (int32 i = 0; i < 3; i++)
-			{
-				if (Inventory[i] != NULL && Inventory[i]->GetDefaultObject<AWeapon>()->WeaponConfig.WeaponName == CurrentWeapon->WeaponConfig.WeaponName)
-				{
-					Inventory[i] = NULL;
-					Inventory[i] = CurrentWeapon->GetClass();
-					GEngine->AddOnScreenDebugMessage(-1, 2.f, FColor::Black, "I put " + CurrentWeapon->WeaponConfig.WeaponName + " away in slot " + FString::FromInt(i));
-				}
+			else if (Inventory[Weapon->WeaponConfig.Priority]->CurrentAmmo > Inventory[Weapon->WeaponConfig.Priority]->WeaponConfig.MaxAmmo) {
+					Inventory[Weapon->WeaponConfig.Priority]->CurrentAmmo = Inventory[Weapon->WeaponConfig.Priority]->WeaponConfig.MaxAmmo;
 			}
-			CurrentWeapon->Destroy();
-			Spawner->CollisionBox->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-			Spawner->AttachRootComponentTo(GetMesh(), "WeaponSocket");
-			CurrentWeapon = Spawner;
-			GEngine->AddOnScreenDebugMessage(-1, 2.f, FColor::Black, "My current weapon is " + CurrentWeapon->WeaponConfig.WeaponName);
-		}
-		else
-		{
-			Spawner->CollisionBox->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-			Spawner->AttachRootComponentTo(GetMesh(), "WeaponSocket");
-			CurrentWeapon = Spawner;
 		}
 	}
 }
@@ -392,4 +337,19 @@ void AAGEAGameCharacter::UpdateStealthValue(float StealthValue)
 		this->StealthValue = 100.0f;
 	if (this->StealthValue <= 0.0f)
 		this->StealthValue = 0.0f;
+}
+
+void AAGEAGameCharacter::ActivateSneak()
+{
+	GetCharacterMovement()->MaxWalkSpeed = 100.0f;
+}
+
+void AAGEAGameCharacter::DeactivateSneak()
+{
+	GetCharacterMovement()->MaxWalkSpeed = 300.0f;
+}
+
+void AAGEAGameCharacter::UpdateHealth(float UpdateHealthValue) 
+{
+	PlayerHealth += UpdateHealthValue; 
 }

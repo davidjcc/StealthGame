@@ -27,15 +27,6 @@ class AGEAGAME_API APowerup : public AActor
 
 	// The sound to play when the trigger is entered
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Power Up")
-	USoundBase* PickupSound;
-
-	// The rate in which the mesh will rotate
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Power Up")
-	float RotationRate;
-
-	// Override the tick function
-	virtual void Tick(float DeltaTime) override;
-	
-	virtual void OnCollision(class AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bHit, const FHitResult & hitresult);
+	USoundBase* PickupSound;	
 
 };

@@ -94,12 +94,18 @@ class AAGEAGameCharacter : public ACharacter
 	UFUNCTION(BlueprintCallable, Category = "Player Distraction")
 	void MakeDistractionNoise();
 	
-	// WEAPON STUFF
+	UPROPERTY(EditDefaultsOnly, Category = DefaultInv)
+	TSubclassOf<class AWeapon> WeaponSpawn;
+
 	AWeapon *CurrentWeapon;
-	void FireWeapon();	
-	void EquipPistol();
-	void EquipShotgun();
-	void EquipRocketLauncher();
+	void ProcessWeaponPickup(AWeapon * Weapon);
+	void FireWeapon();
+	void NextWeapon();
+	void PrevWeapon();
+	void EquipWeapon(AWeapon * Weapon);
+
+	UFUNCTION(BlueprintCallable, Category = Event)
+	void GiveDefaultWeapon();
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Collision)
 	UBoxComponent* BoxCollisionComp;
@@ -108,11 +114,19 @@ class AAGEAGameCharacter : public ACharacter
 	void OnPlayerCollision(class AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bHit, const FHitResult & hitresult);
 
 	void DeathCheck();
-
 	void StealthCheck();
+
+	UFUNCTION(BlueprintCallable, Category = Stealth)
 	void UpdateStealthValue(float UpdateStealthValue);
 
-	void UpdateHealth(float UpdateHealthValue) { PlayerHealth += UpdateHealthValue; }
+	UFUNCTION(BlueprintCallable, Category = Health)
+	void UpdateHealth(float UpdateHealthValue);
+
+	void ActivateSneak();
+	void DeactivateSneak();
+
+	//UFUNCTION(BlueprintCallable, Category = Event)
+	//virtual void BeginPlay() override;
 
 protected:
 	

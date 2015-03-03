@@ -14,8 +14,5 @@ class AGEAGAME_API AHealthPowerup : public APowerup
 	GENERATED_UCLASS_BODY()
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Health Power Up")
-	float UpdateHealthValue;
-
-	void OnCollision(class AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bHit, const FHitResult & hitresult);
-	
+	float UpdateHealthValue;	
 };

@@ -120,3 +120,39 @@ void AWeapon::ProjectileFire()
 }
 
 
+void AWeapon::SetOwningPawn(AAGEAGameCharacter * NewOwner)
+{
+	if (MyPawn != NewOwner) {
+		Instigator = NewOwner;
+		MyPawn = NewOwner;
+	}
+}
+
+void AWeapon::AttachToPlayer()
+{
+	if (MyPawn) {
+		DetachFromPlayer();
+
+		USkeletalMeshComponent * Character = MyPawn->GetMesh();
+		WeaponMesh->SetHiddenInGame(false);
+		WeaponMesh->AttachTo(Character, "WeaponSocket");
+	}
+}
+
+void AWeapon::DetachFromPlayer()
+{
+	WeaponMesh->DetachFromParent();
+	WeaponMesh->SetHiddenInGame(true);
+}
+
+void AWeapon::OnEquip()
+{
+	CollisionBox->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	AttachToPlayer();
+}
+
+void AWeapon::OnUnequip()
+{
+	DetachFromPlayer();
+}
+

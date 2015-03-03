@@ -5,6 +5,7 @@
 #include "GameFramework/Actor.h"
 #include "Weapon.generated.h"
 
+class AAGEAGameCharacter;
 
 #define TRACE_WEAPON ECC_GameTraceChannel1
 
@@ -33,11 +34,14 @@ namespace EWeaponProjectile
 USTRUCT()
 struct FWeaponData
 {
-	GENERATED_USTRUCT_BODY()
+	GENERATED_USTRUCT_BODY();
 
 	// The maximium amount of ammo a gun can hold
 	UPROPERTY(EditDefaultsOnly, Category = Ammo)
 	int32 MaxAmmo;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Config)
+	int32 ClipSize;
 
 	// The time between each shot fired
 	UPROPERTY(EditDefaultsOnly, Category = Config)
@@ -60,6 +64,9 @@ struct FWeaponData
 
 	UPROPERTY(EditDefaultsOnly, Category = Config)
 	float WeaponDamage;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Config)
+	int32 Priority;
 };
 
 UCLASS()
@@ -104,9 +111,25 @@ class AGEAGAME_API AWeapon : public AActor
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Config")
 	UParticleSystemComponent* ParticleSystem;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Config")
+	int32 CurrentAmmo;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Config")
+	int32 CurrentClip;
+
+	void SetOwningPawn(AAGEAGameCharacter * NewOwner);
+
+	void AttachToPlayer();
+	void DetachFromPlayer();
+
+	void OnEquip();
+	void OnUnequip();
+
 protected:
 
 	FHitResult WeaponTrace(const FVector &TraceFrom, const FVector &TraceTo) const;
 
 	void ProcessInstantHit(const FHitResult &Impact, const FVector &Origin,	const FVector &ShootDirection, int32 RandomSeed, float ReticleSpread);
+
+	AAGEAGameCharacter * MyPawn;
 };

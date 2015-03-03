@@ -12,16 +12,10 @@ UCLASS()
 class AGEAGAME_API AStealthPowerup : public APowerup
 {
 	GENERATED_UCLASS_BODY()
-public:
-
-	AStealthPowerup(const FObjectInitializer& ObjectInitializer);
 
 	// The value to increase the player's stealth meter
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Stealth Power Up")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Stealth Powerup")
 	float UpdateStealthValue = 10.0f;
 
-	//void OnPickedUp_Implementation() override;
-
-	void OnCollision(class AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bHit, const FHitResult & hitresult);
 	
 };
