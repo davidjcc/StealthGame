@@ -7,7 +7,7 @@
 ARifle::ARifle(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
 {
-
+	
 }
 
 

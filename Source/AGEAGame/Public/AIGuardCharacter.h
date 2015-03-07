@@ -27,6 +27,10 @@ class AGEAGAME_API AAIGuardCharacter : public ACharacter
 	UFUNCTION(BlueprintCallable, Category = "Health")
 	void GuardUpdateHealth(float UpdateHealthValue);
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Guard Weapon")
+	AWeapon* CurrentWeapon;
+
+
 protected:
 	
 };

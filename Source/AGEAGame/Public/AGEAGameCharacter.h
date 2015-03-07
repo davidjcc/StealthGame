@@ -5,6 +5,7 @@
 #include "Rifle.h"
 #include "Shotgun.h"
 #include "RocketLauncher.h"
+
 #include "AGEAGameCharacter.generated.h"
 
 const float CAM_MIN = 0.0f;// 300.f;
@@ -56,8 +57,7 @@ class AAGEAGameCharacter : public ACharacter
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Player Stealth")
 	float StealthValue;
 
-	// Is the player invisible?
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Player Stealth")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Player Stealth")
 	bool IsInStealth;
 
 	// The particle effect for the disguise switch
@@ -73,7 +73,7 @@ class AAGEAGameCharacter : public ACharacter
 	UMaterialInterface* DefaultMaterial;
 
 	// The rate in which the invisiblity meter decreases defaults to 0.04f;
-	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category = "Player")
+	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category = "Player Stealth")
 	float StealthDecayRate;
 
 	// The sound to play when the player distracts a guard
@@ -93,10 +93,16 @@ class AAGEAGameCharacter : public ACharacter
 
 	UFUNCTION(BlueprintCallable, Category = "Player Distraction")
 	void MakeDistractionNoise();
+
+	////////////////////////
+	//////WEAPON STUFF//////
+	///////////////////////
 	
+	// Default weapon the player starts with
 	UPROPERTY(EditDefaultsOnly, Category = DefaultInv)
 	TSubclassOf<class AWeapon> WeaponSpawn;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Player Weapon")
 	AWeapon *CurrentWeapon;
 	void ProcessWeaponPickup(AWeapon * Weapon);
 	void FireWeapon();
@@ -106,6 +112,12 @@ class AAGEAGameCharacter : public ACharacter
 
 	UFUNCTION(BlueprintCallable, Category = Event)
 	void GiveDefaultWeapon();
+
+	// Player's inventory
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Player Weapon")
+	TArray<class AWeapon*> Inventory;
+
+	void ProcessWeaponPickup();
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Collision)
 	UBoxComponent* BoxCollisionComp;
@@ -125,8 +137,10 @@ class AAGEAGameCharacter : public ACharacter
 	void ActivateSneak();
 	void DeactivateSneak();
 
-	//UFUNCTION(BlueprintCallable, Category = Event)
-	//virtual void BeginPlay() override;
+	UFUNCTION(BlueprintCallable, Category = Event)
+	virtual void BeginPlay() override;
+
+	virtual float TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent, class AController* EventInstigator, class AActor* DamageCauser);
 
 protected:
 	
@@ -142,18 +156,7 @@ protected:
 
 	// Toggles the isAttacking bool
 	UFUNCTION(BlueprintCallable, Category = "Player Attack")
-	void ToggleAttack();
-
-	// Zooms the camera in
-	void ZoomCameraIn();
-
-	// Zooms the camera out
-	void ZoomCameraOut();
-
-	// Player's inventory
-	TArray<class AWeapon*> Inventory;
-
-	void ProcessWeaponPickup();
+		void ToggleAttack();
 
 protected:
 	// APawn interface
