@@ -4,7 +4,6 @@
 #include "Weapon.h"
 #include "Engine.h"
 #include "AGEAGameCharacter.h"
-#include "AIGuardCharacter.h"
 
 
 AWeapon::AWeapon(const FObjectInitializer& ObjectInitializer)
@@ -124,19 +123,11 @@ void AWeapon::ProcessInstantHit(const FHitResult &Impact, const FVector &Origin,
 		DrawDebugLine(this->GetWorld(), Origin, Impact.TraceEnd, FColor::Black, true, 10000, 10.f);
 	}
 
-	// Handle the collisions of actors
-	AAIGuardCharacter* Guard = Cast<AAIGuardCharacter>(Impact.GetActor());
-	if (Guard)
-	{
-		//GEngine->AddOnScreenDebugMessage(-1, 2.f, FColor::Red, "You hit an enemy");
-		Guard->GuardUpdateHealth(-(WeaponConfig.WeaponDamage));
-	}
-
 	// Damage the player if they get hit
-	AAGEAGameCharacter *Player = Cast<AAGEAGameCharacter>(Impact.GetActor());
-	if (Player)
+	AAGEAGameCharacter *GameCharacter = Cast<AAGEAGameCharacter>(Impact.GetActor());
+	if (GameCharacter)
 	{
-		Player->PlayerTakeDamage(this->WeaponConfig.WeaponDamage);
+		GameCharacter->UpdateHealth(this->WeaponConfig.WeaponDamage);
 	}
 }
 

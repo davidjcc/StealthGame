@@ -11,6 +11,7 @@
 
 //////////////////////////////////////////////////////////////////////////
 // AAGEAGameCharacter
+/////////////////////////////////////////////////////////////////////////
 
 AAGEAGameCharacter::AAGEAGameCharacter(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
@@ -20,10 +21,6 @@ AAGEAGameCharacter::AAGEAGameCharacter(const FObjectInitializer& ObjectInitializ
 
 	// Set size for collision capsule
 	GetCapsuleComponent()->InitCapsuleSize(42.f, 96.0f);
-
-	// set our turn rates for input
-	BaseTurnRate = 45.f;
-	BaseLookUpRate = 45.f;
 
 	// Don't rotate when the controller rotates. Let that just affect the camera.
 	bUseControllerRotationPitch = false;
@@ -60,18 +57,11 @@ AAGEAGameCharacter::AAGEAGameCharacter(const FObjectInitializer& ObjectInitializ
 	// Create the noise emitter
 	NoiseEmitter = ObjectInitializer.CreateDefaultSubobject<UPawnNoiseEmitterComponent>(this, TEXT("Noise Emitter"));
 	
-	PlayerHealth = 100;
-	CameraZoomRate = 75.f;
-	StealthValue = 100.f;
-	IsInStealth = false;
-	StealthDecayRate = 0.3f;
-	isAttacking = false;
-
-
 }
 
 //////////////////////////////////////////////////////////////////////////
 // Input
+/////////////////////////////////////////////////////////////////////////
 
 void AAGEAGameCharacter::SetupPlayerInputComponent(class UInputComponent* InputComponent)
 {
@@ -110,14 +100,6 @@ void AAGEAGameCharacter::SetupPlayerInputComponent(class UInputComponent* InputC
 	InputComponent->BindAction("PrevWeapon", IE_Pressed, this, &AAGEAGameCharacter::PrevWeapon);
 }
 
-void AAGEAGameCharacter::BeginPlay()
-{
-	Super::BeginPlay();
-
-	GiveDefaultWeapon();
-
-}
-
 void AAGEAGameCharacter::MoveForward(float Value)
 {
 	if ((Controller != NULL) && (Value != 0.0f))
@@ -147,10 +129,51 @@ void AAGEAGameCharacter::MoveRight(float Value)
 	}
 }
 
+////////////////////////////////////////////////////////
+// BeginPlay, Tick, OnPlayerCollision and TakeDamage
+////////////////////////////////////////////////////////
+
+void AAGEAGameCharacter::BeginPlay()
+{
+	Super::BeginPlay();
+
+	GiveDefaultWeapon();
+
+}
+
+void AAGEAGameCharacter::Tick(float DeltaTime)
+{
+	Super::Tick(DeltaTime);
+
+	DeathCheck();
+
+	if (IsPlayer)
+		StealthCheck();
+
+}
+
+void AAGEAGameCharacter::OnPlayerCollision(class AActor* OtherActor, class UPrimitiveComponent* OtherComp,
+	int32 OtherBodyIndex, bool bHit, const FHitResult & hitresult)
+{
+	AWeapon* Weapon = Cast<AWeapon>(OtherActor);
+	if (Weapon)
+	{
+		ProcessWeaponPickup(Weapon);
+	}
+}
+
+float AAGEAGameCharacter::TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent, class AController* EventInstigator, class AActor* DamageCauser)
+{
+	UpdateHealth(DamageAmount);
+	return Health;
+}
+
+//////////////////////////////////////////////////////////
+// Weapon
+//////////////////////////////////////////////////////////
+
 void AAGEAGameCharacter::NextWeapon()
 {
-	//GEngine->AddOnScreenDebugMessage(-1, 2.f, FColor::Black, "Trying to select next weapon");
-
 	if (Inventory[CurrentWeapon->WeaponConfig.Priority]->WeaponConfig.Priority != 2) 
 	{
 		if(Inventory[CurrentWeapon->WeaponConfig.Priority + 1] == NULL) 
@@ -176,8 +199,6 @@ void AAGEAGameCharacter::NextWeapon()
 
 void AAGEAGameCharacter::PrevWeapon()
 {
-	//GEngine->AddOnScreenDebugMessage(-1, 2.f, FColor::Black, "Trying to select previous weapon");
-
 	if (Inventory[CurrentWeapon->WeaponConfig.Priority]->WeaponConfig.Priority != 0) 
 	{
 		if (Inventory[CurrentWeapon->WeaponConfig.Priority - 1] == NULL) 
@@ -222,8 +243,6 @@ void AAGEAGameCharacter::EquipWeapon(AWeapon * Weapon)
 
 void AAGEAGameCharacter::GiveDefaultWeapon()
 {
-	//GEngine->AddOnScreenDebugMessage(-1, 2.f, FColor::Black, "Giving player default weapon");
-
 	AWeapon * Spawner = GetWorld()->SpawnActor<AWeapon>(WeaponSpawn);
 	if (Spawner) 
 	{
@@ -234,28 +253,52 @@ void AAGEAGameCharacter::GiveDefaultWeapon()
 	}
 }
 
-void AAGEAGameCharacter::PlayerTakeDamage(float damage)
+void AAGEAGameCharacter::FireWeapon()
 {
-	PlayerHealth -= damage;
-
-	// Min the health at 0
-	if (PlayerHealth < 0.0f)
-		PlayerHealth = 0;
+	if (CurrentWeapon != NULL)
+	{
+		CurrentWeapon->ProcessWeapon();
+	}
 }
 
-void AAGEAGameCharacter::Tick(float DeltaTime)
+void AAGEAGameCharacter::ProcessWeaponPickup(AWeapon * Weapon)
 {
-	Super::Tick(DeltaTime);
-
-	DeathCheck();
-
-	StealthCheck();
-
+	if (Weapon != NULL)
+	{
+		if (Inventory[Weapon->WeaponConfig.Priority] == NULL)
+		{
+			AWeapon * Spawner = GetWorld()->SpawnActor<AWeapon>(Weapon->GetClass());
+			if (Spawner)
+			{
+				Inventory[Spawner->WeaponConfig.Priority] = Spawner;
+				//GEngine->AddOnScreenDebugMessage(-1, 2.f, FColor::Black, "You picked up a " + Inventory[Spawner->WeaponConfig.Priority]->WeaponConfig.WeaponName);
+			}
+			Weapon->Destroy();
+		}
+		else
+		{
+			if (Inventory[Weapon->WeaponConfig.Priority]->CurrentAmmo >= 0 &&
+				Weapon->CurrentAmmo <= (Inventory[Weapon->WeaponConfig.Priority]->WeaponConfig.MaxAmmo - Inventory[Weapon->WeaponConfig.Priority]->CurrentAmmo))
+			{
+				Inventory[Weapon->WeaponConfig.Priority]->CurrentAmmo += Weapon->CurrentAmmo;
+				//GEngine->AddOnScreenDebugMessage(-1, 2.f, FColor::Red, "Added " + Weapon->CurrentAmmo);
+				Weapon->Destroy();
+			}
+			else if (Inventory[Weapon->WeaponConfig.Priority]->CurrentAmmo > Inventory[Weapon->WeaponConfig.Priority]->WeaponConfig.MaxAmmo)
+			{
+				Inventory[Weapon->WeaponConfig.Priority]->CurrentAmmo = Inventory[Weapon->WeaponConfig.Priority]->WeaponConfig.MaxAmmo;
+			}
+		}
+	}
 }
+
+//////////////////////////////////////////////////////
+// Stealth /  Sneak
+/////////////////////////////////////////////////////
 
 void AAGEAGameCharacter::ActivateStealth()
 {
-	if (StealthValue > 0.0f && !IsInStealth) 
+	if (StealthValue > 0.0f && !IsInStealth && IsPlayer) 
 	{
 		IsInStealth = true;
 		GetMesh()->SetMaterial(0, StealthMaterial);
@@ -264,14 +307,24 @@ void AAGEAGameCharacter::ActivateStealth()
 
 void AAGEAGameCharacter::DeactivateStealth()
 {
-	IsInStealth = false;
-	GetMesh()->SetMaterial(0, DefaultMaterial);
+	if (IsPlayer)
+	{
+		IsInStealth = false;
+		GetMesh()->SetMaterial(0, DefaultMaterial);
+	}
 }
 
 void AAGEAGameCharacter::SetStealth(bool disguise)
 {
 	IsInStealth = disguise;
 }
+
+void AAGEAGameCharacter::MakeDistractionNoise()
+{
+	NoiseEmitter->MakeNoise(this, 10.0f, GetActorLocation());
+	UGameplayStatics::PlaySoundAtLocation(this, DistractionSound, GetActorLocation());
+}
+
 
 void AAGEAGameCharacter::SetIsAttacking(bool attacking)
 {
@@ -289,64 +342,33 @@ void AAGEAGameCharacter::ToggleAttack()
 	}
 }
 
-void AAGEAGameCharacter::MakeDistractionNoise()
+void AAGEAGameCharacter::UpdateStealthValue(float StealthValue)
 {
-	NoiseEmitter->MakeNoise(this, 10.0f, GetActorLocation());
-	UGameplayStatics::PlaySoundAtLocation(this, DistractionSound, GetActorLocation());
+	this->StealthValue += StealthValue;
+
+	if (this->StealthValue > 100.0f)
+		this->StealthValue = 100.0f;
+	if (this->StealthValue < 0.0f)
+		this->StealthValue = 0.0f;
 }
 
-void AAGEAGameCharacter::FireWeapon()
+void AAGEAGameCharacter::ActivateSneak()
 {
-	if (CurrentWeapon != NULL)	
-	{
-		CurrentWeapon->ProcessWeapon();
-	}
+	GetCharacterMovement()->MaxWalkSpeed = 100.0f;
 }
 
-void AAGEAGameCharacter::OnPlayerCollision(class AActor* OtherActor, class UPrimitiveComponent* OtherComp, 
-	int32 OtherBodyIndex, bool bHit, const FHitResult & hitresult)
+void AAGEAGameCharacter::DeactivateSneak()
 {
-	AWeapon* Weapon = Cast<AWeapon>(OtherActor);
-	if (Weapon) 
-	{
-		ProcessWeaponPickup(Weapon);
-	}
+	GetCharacterMovement()->MaxWalkSpeed = 300.0f;
 }
 
-void AAGEAGameCharacter::ProcessWeaponPickup(AWeapon * Weapon)
-{
-	if (Weapon != NULL) 
-	{
-		if (Inventory[Weapon->WeaponConfig.Priority] == NULL) 
-		{
-			AWeapon * Spawner = GetWorld()->SpawnActor<AWeapon>(Weapon->GetClass());
-			if (Spawner) 
-			{
-				Inventory[Spawner->WeaponConfig.Priority] = Spawner;
-				//GEngine->AddOnScreenDebugMessage(-1, 2.f, FColor::Black, "You picked up a " + Inventory[Spawner->WeaponConfig.Priority]->WeaponConfig.WeaponName);
-			}
-			Weapon->Destroy();
-		}
-		else 
-		{
-			if (Inventory[Weapon->WeaponConfig.Priority]->CurrentAmmo >= 0 && 
-				Weapon->CurrentAmmo <= (Inventory[Weapon->WeaponConfig.Priority]->WeaponConfig.MaxAmmo - Inventory[Weapon->WeaponConfig.Priority]->CurrentAmmo))
-			{
-				Inventory[Weapon->WeaponConfig.Priority]->CurrentAmmo += Weapon->CurrentAmmo;
-				//GEngine->AddOnScreenDebugMessage(-1, 2.f, FColor::Red, "Added " + Weapon->CurrentAmmo);
-				Weapon->Destroy();
-			}
-			else if (Inventory[Weapon->WeaponConfig.Priority]->CurrentAmmo > Inventory[Weapon->WeaponConfig.Priority]->WeaponConfig.MaxAmmo) 
-			{
-					Inventory[Weapon->WeaponConfig.Priority]->CurrentAmmo = Inventory[Weapon->WeaponConfig.Priority]->WeaponConfig.MaxAmmo;
-			}
-		}
-	}
-}
+///////////////////////////////////////////////////
+// Stealth/Death Checks and Update Health
+//////////////////////////////////////////////////
 
 void AAGEAGameCharacter::DeathCheck()
 {
-	if (PlayerHealth <= 0) 
+	if (Health <= 0) 
 	{
 		GetWorld()->ServerTravel("/Game/Maps/GameOver");
 	}
@@ -365,33 +387,13 @@ void AAGEAGameCharacter::StealthCheck()
 
 }
 
-void AAGEAGameCharacter::UpdateStealthValue(float StealthValue)
-{
-	this->StealthValue += StealthValue;
-
-	if (this->StealthValue >= 100.0f)
-		this->StealthValue = 100.0f;
-	if (this->StealthValue <= 0.0f)
-		this->StealthValue = 0.0f;
-}
-
-void AAGEAGameCharacter::ActivateSneak()
-{
-	GetCharacterMovement()->MaxWalkSpeed = 100.0f;
-}
-
-void AAGEAGameCharacter::DeactivateSneak()
-{
-	GetCharacterMovement()->MaxWalkSpeed = 300.0f;
-}
-
 void AAGEAGameCharacter::UpdateHealth(float UpdateHealthValue) 
 {
-	PlayerHealth += UpdateHealthValue; 
-}
+	if (Health > 0.0f && Health < 100.0f)
+		Health += UpdateHealthValue; 
 
-float AAGEAGameCharacter::TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent, class AController* EventInstigator, class AActor* DamageCauser)
-{
-	PlayerTakeDamage(DamageAmount);
-	return PlayerHealth;
+	if (Health < 0.0f)
+		Health = 0.0f;
+	if (Health > 100.0f)
+		Health = 100.0f;
 }
