@@ -23,9 +23,8 @@ void ARocketLauncher::ProjectileFire()
 		ARocket* const Rocket = GetWorld()->SpawnActor<ARocket>(ProjectileClass, MFLoc, MFRot, SpawnParams);
 		if (Rocket)
 		{
-
+			
 		}
-		CurrentClip -= WeaponConfig.ShotCost;
 	}
 }
 

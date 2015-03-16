@@ -25,47 +25,20 @@ void AWeapon::ProcessWeapon()
 {
 	if (ProjectileType == EWeaponProjectile::EBullet)
 	{
-		if (CurrentClip > 0)
-		{
-			FireWeapon();
-			PlayWeaponSound(WeaponFireSound);
-			CurrentClip -= WeaponConfig.ShotCost;
-		}
-		else
-		{
-			ReloadAmmo();
-		}
+		FireWeapon();
 	}
 
 	if (ProjectileType == EWeaponProjectile::ESpread)
 	{
-		if (CurrentClip > 0)
+		for (int32 i = 0; i <= WeaponConfig.WeaponSpread; i++)
 		{
-			for (int32 i = 0; i <= WeaponConfig.WeaponSpread; i++)
-			{
-				FireWeapon();
-			}
-			PlayWeaponSound(WeaponFireSound);
-			CurrentClip -= WeaponConfig.ShotCost;
-		}
-		else
-		{
-			ReloadAmmo();
+			FireWeapon();
 		}
 	}
 
 	if (ProjectileType == EWeaponProjectile::EProjectile)
 	{
-		if (CurrentClip > 0)
-		{
-			ProjectileFire();
-			PlayWeaponSound(WeaponFireSound);
-			CurrentClip -= WeaponConfig.ShotCost;
-		}
-		else
-		{
-			ReloadAmmo();
-		}
+		ProjectileFire();
 	}
 }
 
@@ -90,7 +63,6 @@ void AWeapon::FireWeapon()
 
 	// Process the hit after firing weapon
 	ProcessInstantHit(Impact, StartTrace, ShootDirection, RandomSeed, CurrentSpread);
-	
 }
 
 FHitResult AWeapon::WeaponTrace(const FVector &TraceFrom, const FVector &TraceTo) const
@@ -134,14 +106,14 @@ void AWeapon::ProcessInstantHit(const FHitResult &Impact, const FVector &Origin,
 void AWeapon::ProjectileFire()
 {
 	// Play sound and particle effect
-	ParticleSystem->ActivateSystem();
+	UGameplayStatics::PlaySoundAtLocation(this, WeaponFireSound, GetActorLocation());
+	//ParticleSystem->ActivateSystem();
 }
 
 
 void AWeapon::SetOwningPawn(AAGEAGameCharacter * NewOwner)
 {
-	if (MyPawn != NewOwner) 
-	{
+	if (MyPawn != NewOwner) {
 		Instigator = NewOwner;
 		MyPawn = NewOwner;
 	}
@@ -149,8 +121,7 @@ void AWeapon::SetOwningPawn(AAGEAGameCharacter * NewOwner)
 
 void AWeapon::AttachToPlayer()
 {
-	if (MyPawn)
-	{
+	if (MyPawn) {
 		DetachFromPlayer();
 
 		USkeletalMeshComponent * Character = MyPawn->GetMesh();
@@ -176,33 +147,3 @@ void AWeapon::OnUnequip()
 	DetachFromPlayer();
 }
 
-void AWeapon::ReloadAmmo()
-{
-	if (CurrentAmmo > 0)
-	{
-		if (CurrentAmmo < WeaponConfig.ClipSize)
-		{
-			CurrentClip = CurrentAmmo;
-		}
-		else
-		{
-			CurrentAmmo -= WeaponConfig.ClipSize;
-			CurrentClip += WeaponConfig.ClipSize;
-		}
-	}
-	else
-	{
-		//GEngine->AddOnScreenDebugMessage(-1, 2.f, FColor::Blue, "No Ammo");
-	}
-}
-
-UAudioComponent* AWeapon::PlayWeaponSound(USoundCue* Sound)
-{
-	UAudioComponent* AC = nullptr;
-	if (Sound && MyPawn)
-	{
-		AC = UGameplayStatics::PlaySoundAttached(Sound, MyPawn->GetRootComponent());
-	}
-
-	return AC;
-}

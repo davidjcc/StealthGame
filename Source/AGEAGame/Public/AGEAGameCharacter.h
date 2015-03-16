@@ -5,7 +5,6 @@
 #include "Rifle.h"
 #include "Shotgun.h"
 #include "RocketLauncher.h"
-
 #include "AGEAGameCharacter.generated.h"
 
 UCLASS(config=Game)
@@ -54,8 +53,14 @@ class AAGEAGameCharacter : public ACharacter
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Stealth")
 	float StealthValue = 100.0f;
 
+<<<<<<< HEAD
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Stealth")
 	bool IsInStealth = false;
+=======
+	// Is the player invisible?
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Player Stealth")
+	bool IsInStealth;
+>>>>>>> parent of d7be251... Completed work on refactoring weapons
 
 	// The particle effect for the disguise switch
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Stealth")
@@ -70,8 +75,13 @@ class AAGEAGameCharacter : public ACharacter
 	UMaterialInterface* DefaultMaterial;
 
 	// The rate in which the invisiblity meter decreases defaults to 0.04f;
+<<<<<<< HEAD
 	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category = "Stealth")
 	float StealthDecayRate = 0.3f;
+=======
+	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category = "Player")
+	float StealthDecayRate;
+>>>>>>> parent of d7be251... Completed work on refactoring weapons
 
 	// The sound to play when the player distracts a guard
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Distraction")
@@ -86,16 +96,14 @@ class AAGEAGameCharacter : public ACharacter
 
 	UFUNCTION(BlueprintCallable, Category = "Distraction")
 	void MakeDistractionNoise();
-
-	////////////////////////
-	//////WEAPON STUFF//////
-	///////////////////////
 	
-	// Default weapon the player starts with
 	UPROPERTY(EditDefaultsOnly, Category = DefaultInv)
 	TSubclassOf<class AWeapon> WeaponSpawn;
 
+<<<<<<< HEAD
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Weapon")
+=======
+>>>>>>> parent of d7be251... Completed work on refactoring weapons
 	AWeapon *CurrentWeapon;
 	void ProcessWeaponPickup(AWeapon * Weapon);
 	void FireWeapon();
@@ -106,12 +114,15 @@ class AAGEAGameCharacter : public ACharacter
 	UFUNCTION(BlueprintCallable, Category = Event)
 	void GiveDefaultWeapon();
 
+<<<<<<< HEAD
 	// Player's inventory
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Weapon")
 	TArray<class AWeapon*> Inventory;
 
 	void ProcessWeaponPickup();
 
+=======
+>>>>>>> parent of d7be251... Completed work on refactoring weapons
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Collision)
 	UBoxComponent* BoxCollisionComp;
 
@@ -131,9 +142,14 @@ class AAGEAGameCharacter : public ACharacter
 	void ActivateSneak();
 	void DeactivateSneak();
 
+<<<<<<< HEAD
 	virtual float TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent, 
 		class AController* EventInstigator, class AActor* DamageCauser);
 
+=======
+	//UFUNCTION(BlueprintCallable, Category = Event)
+	//virtual void BeginPlay() override;
+>>>>>>> parent of d7be251... Completed work on refactoring weapons
 
 protected:
 	
@@ -150,6 +166,20 @@ protected:
 	// Toggles the isAttacking bool
 	UFUNCTION(BlueprintCallable, Category = "Player Attack")
 	void ToggleAttack();
+<<<<<<< HEAD
+=======
+
+	// Zooms the camera in
+	void ZoomCameraIn();
+
+	// Zooms the camera out
+	void ZoomCameraOut();
+
+	// Player's inventory
+	TArray<class AWeapon*> Inventory;
+
+	void ProcessWeaponPickup();
+>>>>>>> parent of d7be251... Completed work on refactoring weapons
 
 protected:
 	// APawn interface

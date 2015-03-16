@@ -7,6 +7,7 @@
 AShotgun::AShotgun(const FObjectInitializer& ObjectInitializer)
 : Super(ObjectInitializer)
 {
+
 }
 
 
