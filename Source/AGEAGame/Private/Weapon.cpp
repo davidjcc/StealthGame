@@ -4,7 +4,6 @@
 #include "Weapon.h"
 #include "Engine.h"
 #include "AGEAGameCharacter.h"
-#include "AIGuardCharacter.h"
 
 
 AWeapon::AWeapon(const FObjectInitializer& ObjectInitializer)
@@ -26,47 +25,20 @@ void AWeapon::ProcessWeapon()
 {
 	if (ProjectileType == EWeaponProjectile::EBullet)
 	{
-		if (CurrentClip > 0)
-		{
-			FireWeapon();
-			PlayWeaponSound(WeaponFireSound);
-			CurrentClip -= WeaponConfig.ShotCost;
-		}
-		else
-		{
-			ReloadAmmo();
-		}
+		FireWeapon();
 	}
 
 	if (ProjectileType == EWeaponProjectile::ESpread)
 	{
-		if (CurrentClip > 0)
+		for (int32 i = 0; i <= WeaponConfig.WeaponSpread; i++)
 		{
-			for (int32 i = 0; i <= WeaponConfig.WeaponSpread; i++)
-			{
-				FireWeapon();
-			}
-			PlayWeaponSound(WeaponFireSound);
-			CurrentClip -= WeaponConfig.ShotCost;
-		}
-		else
-		{
-			ReloadAmmo();
+			FireWeapon();
 		}
 	}
 
 	if (ProjectileType == EWeaponProjectile::EProjectile)
 	{
-		if (CurrentClip > 0)
-		{
-			ProjectileFire();
-			PlayWeaponSound(WeaponFireSound);
-			CurrentClip -= WeaponConfig.ShotCost;
-		}
-		else
-		{
-			ReloadAmmo();
-		}
+		ProjectileFire();
 	}
 }
 
@@ -91,7 +63,6 @@ void AWeapon::FireWeapon()
 
 	// Process the hit after firing weapon
 	ProcessInstantHit(Impact, StartTrace, ShootDirection, RandomSeed, CurrentSpread);
-	
 }
 
 FHitResult AWeapon::WeaponTrace(const FVector &TraceFrom, const FVector &TraceTo) const
@@ -124,33 +95,25 @@ void AWeapon::ProcessInstantHit(const FHitResult &Impact, const FVector &Origin,
 		DrawDebugLine(this->GetWorld(), Origin, Impact.TraceEnd, FColor::Black, true, 10000, 10.f);
 	}
 
-	// Handle the collisions of actors
-	AAIGuardCharacter* Guard = Cast<AAIGuardCharacter>(Impact.GetActor());
-	if (Guard)
-	{
-		//GEngine->AddOnScreenDebugMessage(-1, 2.f, FColor::Red, "You hit an enemy");
-		Guard->GuardUpdateHealth(-(WeaponConfig.WeaponDamage));
-	}
-
 	// Damage the player if they get hit
-	AAGEAGameCharacter *Player = Cast<AAGEAGameCharacter>(Impact.GetActor());
-	if (Player)
+	AAGEAGameCharacter *GameCharacter = Cast<AAGEAGameCharacter>(Impact.GetActor());
+	if (GameCharacter)
 	{
-		Player->PlayerTakeDamage(this->WeaponConfig.WeaponDamage);
+		GameCharacter->UpdateHealth(this->WeaponConfig.WeaponDamage);
 	}
 }
 
 void AWeapon::ProjectileFire()
 {
 	// Play sound and particle effect
-	ParticleSystem->ActivateSystem();
+	UGameplayStatics::PlaySoundAtLocation(this, WeaponFireSound, GetActorLocation());
+	//ParticleSystem->ActivateSystem();
 }
 
 
 void AWeapon::SetOwningPawn(AAGEAGameCharacter * NewOwner)
 {
-	if (MyPawn != NewOwner) 
-	{
+	if (MyPawn != NewOwner) {
 		Instigator = NewOwner;
 		MyPawn = NewOwner;
 	}
@@ -158,8 +121,7 @@ void AWeapon::SetOwningPawn(AAGEAGameCharacter * NewOwner)
 
 void AWeapon::AttachToPlayer()
 {
-	if (MyPawn)
-	{
+	if (MyPawn) {
 		DetachFromPlayer();
 
 		USkeletalMeshComponent * Character = MyPawn->GetMesh();
@@ -185,33 +147,3 @@ void AWeapon::OnUnequip()
 	DetachFromPlayer();
 }
 
-void AWeapon::ReloadAmmo()
-{
-	if (CurrentAmmo > 0)
-	{
-		if (CurrentAmmo < WeaponConfig.ClipSize)
-		{
-			CurrentClip = CurrentAmmo;
-		}
-		else
-		{
-			CurrentAmmo -= WeaponConfig.ClipSize;
-			CurrentClip += WeaponConfig.ClipSize;
-		}
-	}
-	else
-	{
-		//GEngine->AddOnScreenDebugMessage(-1, 2.f, FColor::Blue, "No Ammo");
-	}
-}
-
-UAudioComponent* AWeapon::PlayWeaponSound(USoundCue* Sound)
-{
-	UAudioComponent* AC = nullptr;
-	if (Sound && MyPawn)
-	{
-		AC = UGameplayStatics::PlaySoundAttached(Sound, MyPawn->GetRootComponent());
-	}
-
-	return AC;
-}

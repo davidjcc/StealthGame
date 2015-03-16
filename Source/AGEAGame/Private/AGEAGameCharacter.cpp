@@ -11,6 +11,7 @@
 
 //////////////////////////////////////////////////////////////////////////
 // AAGEAGameCharacter
+/////////////////////////////////////////////////////////////////////////
 
 AAGEAGameCharacter::AAGEAGameCharacter(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
@@ -20,10 +21,6 @@ AAGEAGameCharacter::AAGEAGameCharacter(const FObjectInitializer& ObjectInitializ
 
 	// Set size for collision capsule
 	GetCapsuleComponent()->InitCapsuleSize(42.f, 96.0f);
-
-	// set our turn rates for input
-	BaseTurnRate = 45.f;
-	BaseLookUpRate = 45.f;
 
 	// Don't rotate when the controller rotates. Let that just affect the camera.
 	bUseControllerRotationPitch = false;
@@ -60,18 +57,11 @@ AAGEAGameCharacter::AAGEAGameCharacter(const FObjectInitializer& ObjectInitializ
 	// Create the noise emitter
 	NoiseEmitter = ObjectInitializer.CreateDefaultSubobject<UPawnNoiseEmitterComponent>(this, TEXT("Noise Emitter"));
 	
-	PlayerHealth = 100;
-	CameraZoomRate = 75.f;
-	StealthValue = 100.f;
-	IsInStealth = false;
-	StealthDecayRate = 0.3f;
-	isAttacking = false;
-
-
 }
 
 //////////////////////////////////////////////////////////////////////////
 // Input
+/////////////////////////////////////////////////////////////////////////
 
 void AAGEAGameCharacter::SetupPlayerInputComponent(class UInputComponent* InputComponent)
 {
@@ -110,14 +100,15 @@ void AAGEAGameCharacter::SetupPlayerInputComponent(class UInputComponent* InputC
 	InputComponent->BindAction("PrevWeapon", IE_Pressed, this, &AAGEAGameCharacter::PrevWeapon);
 }
 
-void AAGEAGameCharacter::BeginPlay()
-{
-	Super::BeginPlay();
+<<<<<<< HEAD
+=======
+//void AAGEAGameCharacter::BeginPlay()
+//{
+//	GiveDefaultWeapon();
+//	
+//}
 
-	GiveDefaultWeapon();
-
-}
-
+>>>>>>> parent of d7be251... Completed work on refactoring weapons
 void AAGEAGameCharacter::MoveForward(float Value)
 {
 	if ((Controller != NULL) && (Value != 0.0f))
@@ -147,10 +138,52 @@ void AAGEAGameCharacter::MoveRight(float Value)
 	}
 }
 
+////////////////////////////////////////////////////////
+// BeginPlay, Tick, OnPlayerCollision and TakeDamage
+////////////////////////////////////////////////////////
+
+void AAGEAGameCharacter::BeginPlay()
+{
+	Super::BeginPlay();
+
+	GiveDefaultWeapon();
+
+}
+
+void AAGEAGameCharacter::Tick(float DeltaTime)
+{
+	Super::Tick(DeltaTime);
+
+	DeathCheck();
+
+	if (IsPlayer)
+		StealthCheck();
+
+}
+
+void AAGEAGameCharacter::OnPlayerCollision(class AActor* OtherActor, class UPrimitiveComponent* OtherComp,
+	int32 OtherBodyIndex, bool bHit, const FHitResult & hitresult)
+{
+	AWeapon* Weapon = Cast<AWeapon>(OtherActor);
+	if (Weapon)
+	{
+		ProcessWeaponPickup(Weapon);
+	}
+}
+
+float AAGEAGameCharacter::TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent, class AController* EventInstigator, class AActor* DamageCauser)
+{
+<<<<<<< HEAD
+	UpdateHealth(DamageAmount);
+	return Health;
+}
+
+//////////////////////////////////////////////////////////
+// Weapon
+//////////////////////////////////////////////////////////
+
 void AAGEAGameCharacter::NextWeapon()
 {
-	//GEngine->AddOnScreenDebugMessage(-1, 2.f, FColor::Black, "Trying to select next weapon");
-
 	if (Inventory[CurrentWeapon->WeaponConfig.Priority]->WeaponConfig.Priority != 2) 
 	{
 		if(Inventory[CurrentWeapon->WeaponConfig.Priority + 1] == NULL) 
@@ -159,25 +192,29 @@ void AAGEAGameCharacter::NextWeapon()
 			{
 				if (Inventory[i] && Inventory[i]->IsA(AWeapon::StaticClass())) 
 				{
+=======
+	GEngine->AddOnScreenDebugMessage(-1, 2.f, FColor::Black, "Trying to select next weapon");
+	if (Inventory[CurrentWeapon->WeaponConfig.Priority]->WeaponConfig.Priority != Inventory.Num()) {
+		if(Inventory[CurrentWeapon->WeaponConfig.Priority + 1] == NULL) {
+			for (int32 i = CurrentWeapon->WeaponConfig.Priority + 1; i < Inventory.Num(); i++) {
+				if (Inventory[i] && Inventory[i]->IsA(AWeapon::StaticClass())) {
+>>>>>>> parent of d7be251... Completed work on refactoring weapons
 					EquipWeapon(Inventory[i]);
 				}
 			}
 		}
-		else 
-		{
+		else {
 			EquipWeapon(Inventory[CurrentWeapon->WeaponConfig.Priority + 1]);
 		}
 	}
-	else 
-	{
+	else {
 		EquipWeapon(Inventory[CurrentWeapon->WeaponConfig.Priority]);
 	}
 }
 
 void AAGEAGameCharacter::PrevWeapon()
 {
-	//GEngine->AddOnScreenDebugMessage(-1, 2.f, FColor::Black, "Trying to select previous weapon");
-
+<<<<<<< HEAD
 	if (Inventory[CurrentWeapon->WeaponConfig.Priority]->WeaponConfig.Priority != 0) 
 	{
 		if (Inventory[CurrentWeapon->WeaponConfig.Priority - 1] == NULL) 
@@ -186,33 +223,36 @@ void AAGEAGameCharacter::PrevWeapon()
 			{
 				if (Inventory[i] && Inventory[i]->IsA(AWeapon::StaticClass()))
 				{
+=======
+	GEngine->AddOnScreenDebugMessage(-1, 2.f, FColor::Black, "Trying to select previous weapon");
+	if (Inventory[CurrentWeapon->WeaponConfig.Priority]->WeaponConfig.Priority != 0) {
+		if (Inventory[CurrentWeapon->WeaponConfig.Priority - 1] == NULL) {
+			for (int32 i = CurrentWeapon->WeaponConfig.Priority - 1; i > 0; i--) {
+				if (Inventory[i] && Inventory[i]->IsA(AWeapon::StaticClass())) {
+>>>>>>> parent of d7be251... Completed work on refactoring weapons
 					EquipWeapon(Inventory[i]);
 				}
 			}
 		}
-		else 
-		{
+		else {
 			EquipWeapon(Inventory[CurrentWeapon->WeaponConfig.Priority - 1]);
 		}
 	}
-	else 
-	{
+	else {
 		EquipWeapon(Inventory[CurrentWeapon->WeaponConfig.Priority]);
 	}
 }
 
 void AAGEAGameCharacter::EquipWeapon(AWeapon * Weapon)
 {
-	if (CurrentWeapon != NULL) 
-	{
+	if (CurrentWeapon != NULL) {
 		CurrentWeapon = Inventory[CurrentWeapon->WeaponConfig.Priority];
 		CurrentWeapon->OnUnequip();
 		CurrentWeapon = Weapon;
 		Weapon->SetOwningPawn(this);
 		Weapon->OnEquip();
 	}
-	else 
-	{
+	else {
 		CurrentWeapon = Weapon;
 		CurrentWeapon = Inventory[CurrentWeapon->WeaponConfig.Priority];
 		CurrentWeapon->SetOwningPawn(this);
@@ -222,11 +262,8 @@ void AAGEAGameCharacter::EquipWeapon(AWeapon * Weapon)
 
 void AAGEAGameCharacter::GiveDefaultWeapon()
 {
-	//GEngine->AddOnScreenDebugMessage(-1, 2.f, FColor::Black, "Giving player default weapon");
-
 	AWeapon * Spawner = GetWorld()->SpawnActor<AWeapon>(WeaponSpawn);
-	if (Spawner) 
-	{
+	if (Spawner) {
 		Inventory[Spawner->WeaponConfig.Priority] = Spawner;
 		CurrentWeapon = Inventory[Spawner->WeaponConfig.Priority];
 		CurrentWeapon->SetOwningPawn(this);
@@ -234,29 +271,57 @@ void AAGEAGameCharacter::GiveDefaultWeapon()
 	}
 }
 
-void AAGEAGameCharacter::PlayerTakeDamage(float damage)
+void AAGEAGameCharacter::FireWeapon()
 {
-	PlayerHealth -= damage;
-
-	// Min the health at 0
-	if (PlayerHealth < 0.0f)
-		PlayerHealth = 0;
+	if (CurrentWeapon != NULL)
+	{
+		CurrentWeapon->ProcessWeapon();
+	}
 }
 
-void AAGEAGameCharacter::Tick(float DeltaTime)
+void AAGEAGameCharacter::ProcessWeaponPickup(AWeapon * Weapon)
 {
-	Super::Tick(DeltaTime);
-
-	DeathCheck();
-
-	StealthCheck();
-
+	if (Weapon != NULL)
+	{
+		if (Inventory[Weapon->WeaponConfig.Priority] == NULL)
+		{
+			AWeapon * Spawner = GetWorld()->SpawnActor<AWeapon>(Weapon->GetClass());
+			if (Spawner)
+			{
+				Inventory[Spawner->WeaponConfig.Priority] = Spawner;
+				//GEngine->AddOnScreenDebugMessage(-1, 2.f, FColor::Black, "You picked up a " + Inventory[Spawner->WeaponConfig.Priority]->WeaponConfig.WeaponName);
+			}
+			Weapon->Destroy();
+		}
+		else
+		{
+			if (Inventory[Weapon->WeaponConfig.Priority]->CurrentAmmo >= 0 &&
+				Weapon->CurrentAmmo <= (Inventory[Weapon->WeaponConfig.Priority]->WeaponConfig.MaxAmmo - Inventory[Weapon->WeaponConfig.Priority]->CurrentAmmo))
+			{
+				Inventory[Weapon->WeaponConfig.Priority]->CurrentAmmo += Weapon->CurrentAmmo;
+				//GEngine->AddOnScreenDebugMessage(-1, 2.f, FColor::Red, "Added " + Weapon->CurrentAmmo);
+				Weapon->Destroy();
+			}
+			else if (Inventory[Weapon->WeaponConfig.Priority]->CurrentAmmo > Inventory[Weapon->WeaponConfig.Priority]->WeaponConfig.MaxAmmo)
+			{
+				Inventory[Weapon->WeaponConfig.Priority]->CurrentAmmo = Inventory[Weapon->WeaponConfig.Priority]->WeaponConfig.MaxAmmo;
+			}
+		}
+	}
 }
+
+//////////////////////////////////////////////////////
+// Stealth /  Sneak
+/////////////////////////////////////////////////////
 
 void AAGEAGameCharacter::ActivateStealth()
 {
-	if (StealthValue > 0.0f && !IsInStealth) 
+<<<<<<< HEAD
+	if (StealthValue > 0.0f && !IsInStealth && IsPlayer) 
 	{
+=======
+	if (StealthValue > 0.0f && !IsInStealth) {
+>>>>>>> parent of d7be251... Completed work on refactoring weapons
 		IsInStealth = true;
 		GetMesh()->SetMaterial(0, StealthMaterial);
 	}
@@ -264,29 +329,16 @@ void AAGEAGameCharacter::ActivateStealth()
 
 void AAGEAGameCharacter::DeactivateStealth()
 {
-	IsInStealth = false;
-	GetMesh()->SetMaterial(0, DefaultMaterial);
+	if (IsPlayer)
+	{
+		IsInStealth = false;
+		GetMesh()->SetMaterial(0, DefaultMaterial);
+	}
 }
 
 void AAGEAGameCharacter::SetStealth(bool disguise)
 {
 	IsInStealth = disguise;
-}
-
-void AAGEAGameCharacter::SetIsAttacking(bool attacking)
-{
-	isAttacking = attacking;
-}
-
-void AAGEAGameCharacter::ToggleAttack()
-{
-	if (isAttacking) 
-	{
-		isAttacking = false;
-	} else 
-	{
-		isAttacking = true;
-	}
 }
 
 void AAGEAGameCharacter::MakeDistractionNoise()
@@ -295,103 +347,118 @@ void AAGEAGameCharacter::MakeDistractionNoise()
 	UGameplayStatics::PlaySoundAtLocation(this, DistractionSound, GetActorLocation());
 }
 
-void AAGEAGameCharacter::FireWeapon()
+
+void AAGEAGameCharacter::SetIsAttacking(bool attacking)
 {
-	if (CurrentWeapon != NULL)	
-	{
-		CurrentWeapon->ProcessWeapon();
-	}
+	isAttacking = attacking;
 }
 
-void AAGEAGameCharacter::OnPlayerCollision(class AActor* OtherActor, class UPrimitiveComponent* OtherComp, 
-	int32 OtherBodyIndex, bool bHit, const FHitResult & hitresult)
+void AAGEAGameCharacter::ToggleAttack()
 {
-	AWeapon* Weapon = Cast<AWeapon>(OtherActor);
-	if (Weapon) 
-	{
-		ProcessWeaponPickup(Weapon);
+	if (isAttacking) {
+		isAttacking = false;
+	} else {
+		isAttacking = true;
 	}
-}
-
-void AAGEAGameCharacter::ProcessWeaponPickup(AWeapon * Weapon)
-{
-	if (Weapon != NULL) 
-	{
-		if (Inventory[Weapon->WeaponConfig.Priority] == NULL) 
-		{
-			AWeapon * Spawner = GetWorld()->SpawnActor<AWeapon>(Weapon->GetClass());
-			if (Spawner) 
-			{
-				Inventory[Spawner->WeaponConfig.Priority] = Spawner;
-				//GEngine->AddOnScreenDebugMessage(-1, 2.f, FColor::Black, "You picked up a " + Inventory[Spawner->WeaponConfig.Priority]->WeaponConfig.WeaponName);
-			}
-			Weapon->Destroy();
-		}
-		else 
-		{
-			if (Inventory[Weapon->WeaponConfig.Priority]->CurrentAmmo >= 0 && 
-				Weapon->CurrentAmmo <= (Inventory[Weapon->WeaponConfig.Priority]->WeaponConfig.MaxAmmo - Inventory[Weapon->WeaponConfig.Priority]->CurrentAmmo))
-			{
-				Inventory[Weapon->WeaponConfig.Priority]->CurrentAmmo += Weapon->CurrentAmmo;
-				//GEngine->AddOnScreenDebugMessage(-1, 2.f, FColor::Red, "Added " + Weapon->CurrentAmmo);
-				Weapon->Destroy();
-			}
-			else if (Inventory[Weapon->WeaponConfig.Priority]->CurrentAmmo > Inventory[Weapon->WeaponConfig.Priority]->WeaponConfig.MaxAmmo) 
-			{
-					Inventory[Weapon->WeaponConfig.Priority]->CurrentAmmo = Inventory[Weapon->WeaponConfig.Priority]->WeaponConfig.MaxAmmo;
-			}
-		}
-	}
-}
-
-void AAGEAGameCharacter::DeathCheck()
-{
-	if (PlayerHealth <= 0) 
-	{
-		GetWorld()->ServerTravel("/Game/Maps/GameOver");
-	}
-}
-
-void AAGEAGameCharacter::StealthCheck()
-{
-	if (IsInStealth) 
-	{
-		StealthValue -= StealthDecayRate;
-	}
-	if (StealthValue <= 0.0f) 
-	{
-		DeactivateStealth();
-	}
-
 }
 
 void AAGEAGameCharacter::UpdateStealthValue(float StealthValue)
 {
 	this->StealthValue += StealthValue;
 
-	if (this->StealthValue >= 100.0f)
+<<<<<<< HEAD
+	if (this->StealthValue > 100.0f)
 		this->StealthValue = 100.0f;
-	if (this->StealthValue <= 0.0f)
+	if (this->StealthValue < 0.0f)
 		this->StealthValue = 0.0f;
+=======
+void AAGEAGameCharacter::FireWeapon()
+{
+	if (CurrentWeapon != NULL)	{
+		CurrentWeapon->ProcessWeapon();
+	}
+>>>>>>> parent of d7be251... Completed work on refactoring weapons
 }
 
 void AAGEAGameCharacter::ActivateSneak()
 {
+<<<<<<< HEAD
 	GetCharacterMovement()->MaxWalkSpeed = 100.0f;
+=======
+	AWeapon* Weapon = Cast<AWeapon>(OtherActor);
+	if (Weapon) {
+		ProcessWeaponPickup(Weapon);
+	}
+>>>>>>> parent of d7be251... Completed work on refactoring weapons
 }
 
 void AAGEAGameCharacter::DeactivateSneak()
 {
+<<<<<<< HEAD
 	GetCharacterMovement()->MaxWalkSpeed = 300.0f;
+=======
+	if (Weapon != NULL) {
+		if (Inventory[Weapon->WeaponConfig.Priority] == NULL) {
+			AWeapon * Spawner = GetWorld()->SpawnActor<AWeapon>(Weapon->GetClass());
+			if (Spawner) {
+				Inventory[Spawner->WeaponConfig.Priority] = Spawner;
+				GEngine->AddOnScreenDebugMessage(-1, 2.f, FColor::Black, "You picked up a " + Inventory[Spawner->WeaponConfig.Priority]->WeaponConfig.WeaponName);
+			}
+			Weapon->Destroy();
+		}
+		else {
+			if (Inventory[Weapon->WeaponConfig.Priority]->CurrentAmmo >= 0 && Weapon->CurrentAmmo <= (Inventory[Weapon->WeaponConfig.Priority]->WeaponConfig.MaxAmmo - Inventory[Weapon->WeaponConfig.Priority]->CurrentAmmo)) {
+				Inventory[Weapon->WeaponConfig.Priority]->CurrentAmmo += Weapon->CurrentAmmo;
+				GEngine->AddOnScreenDebugMessage(-1, 2.f, FColor::Red, "Added " + Weapon->CurrentAmmo);
+				Weapon->Destroy();
+			}
+			else if (Inventory[Weapon->WeaponConfig.Priority]->CurrentAmmo > Inventory[Weapon->WeaponConfig.Priority]->WeaponConfig.MaxAmmo) {
+					Inventory[Weapon->WeaponConfig.Priority]->CurrentAmmo = Inventory[Weapon->WeaponConfig.Priority]->WeaponConfig.MaxAmmo;
+			}
+		}
+	}
+>>>>>>> parent of d7be251... Completed work on refactoring weapons
+}
+
+///////////////////////////////////////////////////
+// Stealth/Death Checks and Update Health
+//////////////////////////////////////////////////
+
+void AAGEAGameCharacter::DeathCheck()
+{
+<<<<<<< HEAD
+	if (Health <= 0) 
+	{
+=======
+	if (PlayerHealth <= 0) {
+>>>>>>> parent of d7be251... Completed work on refactoring weapons
+		GetWorld()->ServerTravel("/Game/Maps/GameOver");
+	}
+}
+
+void AAGEAGameCharacter::StealthCheck()
+{
+	if (IsInStealth) {
+		StealthValue -= StealthDecayRate;
+	}
+	if (StealthValue <= 0.0f) {
+		DeactivateStealth();
+	}
+
 }
 
 void AAGEAGameCharacter::UpdateHealth(float UpdateHealthValue) 
 {
+<<<<<<< HEAD
+	if (Health > 0.0f && Health < 100.0f)
+		Health += UpdateHealthValue; 
+
+	if (Health < 0.0f)
+		Health = 0.0f;
+	if (Health > 100.0f)
+		Health = 100.0f;
+}
+=======
 	PlayerHealth += UpdateHealthValue; 
 }
-
-float AAGEAGameCharacter::TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent, class AController* EventInstigator, class AActor* DamageCauser)
-{
-	PlayerTakeDamage(DamageAmount);
-	return PlayerHealth;
-}
+>>>>>>> parent of d7be251... Completed work on refactoring weapons

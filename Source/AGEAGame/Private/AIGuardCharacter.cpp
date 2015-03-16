@@ -19,3 +19,4 @@ void AAIGuardCharacter::GuardUpdateHealth(float UpdateHealthValue)
 		this->Destroy();
 	}
 }
+

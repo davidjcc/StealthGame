@@ -31,45 +31,42 @@ namespace EWeaponProjectile
 	};
 }
 
-USTRUCT(BlueprintType)
+USTRUCT()
 struct FWeaponData
 {
 	GENERATED_USTRUCT_BODY();
 
 	// The maximium amount of ammo a gun can hold
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Ammo)
+	UPROPERTY(EditDefaultsOnly, Category = Ammo)
 	int32 MaxAmmo;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Config)
 	int32 ClipSize;
 
 	// The time between each shot fired
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Config)
+	UPROPERTY(EditDefaultsOnly, Category = Config)
 	float TimeBetweenShots;
 
 	// The amount of ammo a shot costs, e.g. a semi auto gun shot can cost 3 bullets
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Ammo)
+	UPROPERTY(EditDefaultsOnly, Category = Ammo)
 	int32 ShotCost;
 
 	// How far the gun can shoot to, e.g. a shotgun will have a lower range than a rifle
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Config)
+	UPROPERTY(EditDefaultsOnly, Category = Config)
 	float WeaponRange;
 
 	// The random amount of spread a bullet has so it isn't always shooting directly straight
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Config)
+	UPROPERTY(EditDefaultsOnly, Category = Config)
 	float WeaponSpread;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Config)
+	UPROPERTY(EditDefaultsOnly, Category = Config)
 	FString WeaponName;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Config)
+	UPROPERTY(EditDefaultsOnly, Category = Config)
 	float WeaponDamage;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Config)
 	int32 Priority;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Config)
-	UTexture2D * WeaponSplashArt;
 };
 
 UCLASS()
@@ -93,7 +90,7 @@ class AGEAGAME_API AWeapon : public AActor
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Mesh)
 	USkeletalMeshComponent* WeaponMesh;
 	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Config)
+	UPROPERTY(EditDefaultsOnly, Category = Config)
 	FWeaponData WeaponConfig;
 
 	UPROPERTY(EditDefaultsOnly, Category = Config)
@@ -107,12 +104,8 @@ class AGEAGAME_API AWeapon : public AActor
 	bool bDrawDebugLine;
 
 	// The sound to play when the weapon is fired
-	UPROPERTY(EditDefaultsOnly, Category = "Config")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Config")
 	USoundCue* WeaponFireSound;
-
-	// The sound to play when the weapon is out of ammo
-	UPROPERTY(EditDefaultsOnly, Category = "Config")
-	USoundCue* EmptyWeaponSound;
 
 	// The particle effect for the muzzle flash
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Config")
@@ -131,10 +124,6 @@ class AGEAGAME_API AWeapon : public AActor
 
 	void OnEquip();
 	void OnUnequip();
-
-	void ReloadAmmo();
-
-	UAudioComponent* PlayWeaponSound(USoundCue * Sound);
 
 protected:
 
