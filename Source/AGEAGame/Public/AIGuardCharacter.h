@@ -16,20 +16,35 @@ class AGEAGAME_API AAIGuardCharacter : public ACharacter
 	GENERATED_UCLASS_BODY()
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Health")
-	float Health;
+	float Health = 100.0f;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Character Movement")
-	float RunSpeed;
+	float RunSpeed = 200.0f;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Character Movement")
-	float WalkSpeed;
+	float WalkSpeed = 600.0f;
 
 	UFUNCTION(BlueprintCallable, Category = "Health")
 	void GuardUpdateHealth(float UpdateHealthValue);
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Guard Weapon")
-	AWeapon* CurrentWeapon;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Guard Weapon")
+	TSubclassOf<class AWeapon> WeaponSpawn;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Guard Weapon")
+	AWeapon* CurrentWeapon = nullptr;
+
+	UFUNCTION(BlueprintCallable, Category = "Guard Weapon")
+	void FireWeapon();
+
+	void GiveDefaultWeapon();
+
+	virtual void BeginPlay() override;
+
+	virtual void Tick(float DeltaTime) override;
+
+	virtual float TakeDamage(float DamageAmount, struct FDamageEvent 
+		const& DamageEvent, class AController* EventInstigator, 
+			class AActor* DamageCauser);
 
 protected:
 	

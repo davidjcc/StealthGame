@@ -147,7 +147,7 @@ void AWeapon::ProjectileFire()
 }
 
 
-void AWeapon::SetOwningPawn(AAGEAGameCharacter * NewOwner)
+void AWeapon::SetOwningPawn(ACharacter * NewOwner)
 {
 	if (MyPawn != NewOwner) 
 	{

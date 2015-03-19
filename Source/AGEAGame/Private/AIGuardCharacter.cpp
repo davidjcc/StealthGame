@@ -6,8 +6,6 @@
 AAIGuardCharacter::AAIGuardCharacter(const FObjectInitializer& ObjectInitializer)
 : Super(ObjectInitializer)
 {
-	WalkSpeed = 200.f;
-	RunSpeed = 600.f;
 }
 
 void AAIGuardCharacter::GuardUpdateHealth(float UpdateHealthValue)
@@ -18,4 +16,42 @@ void AAIGuardCharacter::GuardUpdateHealth(float UpdateHealthValue)
 	{
 		this->Destroy();
 	}
+}
+
+void AAIGuardCharacter::FireWeapon()
+{
+	if (CurrentWeapon != nullptr)
+	{
+		CurrentWeapon->ProcessWeapon();
+	}
+}
+
+void AAIGuardCharacter::GiveDefaultWeapon()
+{
+	AWeapon * spawn = GetWorld()->SpawnActor<AWeapon>(WeaponSpawn);
+	if (spawn)
+	{
+		CurrentWeapon = spawn;
+		CurrentWeapon->SetOwningPawn(this);
+		CurrentWeapon->OnEquip();
+	}
+}
+
+void AAIGuardCharacter::BeginPlay()
+{
+	Super::BeginPlay();
+
+	GiveDefaultWeapon();
+}
+
+void AAIGuardCharacter::Tick(float DeltaTime)
+{
+	Super::Tick(DeltaTime);
+}
+
+float AAIGuardCharacter::TakeDamage(float DamageAmount, struct FDamageEvent
+	const& DamageEvent, class AController* EventInstigator,
+		class AActor* DamageCauser)
+{
+	return Health;
 }

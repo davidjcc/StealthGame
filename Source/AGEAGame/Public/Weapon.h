@@ -67,9 +67,6 @@ struct FWeaponData
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Config)
 	int32 Priority;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Config)
-	UTexture2D * WeaponSplashArt;
 };
 
 UCLASS()
@@ -124,7 +121,7 @@ class AGEAGAME_API AWeapon : public AActor
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Config")
 	int32 CurrentClip;
 
-	void SetOwningPawn(AAGEAGameCharacter * NewOwner);
+	void SetOwningPawn(ACharacter * NewOwner);
 
 	void AttachToPlayer();
 	void DetachFromPlayer();
@@ -142,5 +139,5 @@ protected:
 
 	void ProcessInstantHit(const FHitResult &Impact, const FVector &Origin,	const FVector &ShootDirection, int32 RandomSeed, float ReticleSpread);
 
-	AAGEAGameCharacter * MyPawn;
+	ACharacter * MyPawn;
 };
