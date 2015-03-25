@@ -5,11 +5,9 @@
 #include "Rifle.h"
 #include "Shotgun.h"
 #include "RocketLauncher.h"
+#include "Gadget.h"
 
 #include "AGEAGameCharacter.generated.h"
-
-const float CAM_MIN = 0.0f;// 300.f;
-const float CAM_MAX = 1000.f;
 
 UCLASS(config=Game)
 class AAGEAGameCharacter : public ACharacter
@@ -141,6 +139,11 @@ class AAGEAGameCharacter : public ACharacter
 	virtual void BeginPlay() override;
 
 	virtual float TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent, class AController* EventInstigator, class AActor* DamageCauser);
+
+	UFUNCTION(BlueprintCallable, Category = Gadget)
+	void ThrowGadget();
+	AGadget* CurrentGadget = NULL;
+	TSubclassOf<class AGadget> GadgetClass;
 
 protected:
 	

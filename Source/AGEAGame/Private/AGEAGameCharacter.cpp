@@ -37,28 +37,28 @@ AAGEAGameCharacter::AAGEAGameCharacter(const FObjectInitializer& ObjectInitializ
 	GetCharacterMovement()->AirControl = 0.2f;
 
 	// Create a camera boom (pulls in towards the player if there is a collision)
-	CameraBoom = ObjectInitializer.CreateDefaultSubobject<USpringArmComponent>(this, TEXT("CameraBoom"));
+	CameraBoom = CreateDefaultSubobject<USpringArmComponent>(TEXT("CameraBoom"));
 	CameraBoom->AttachTo(RootComponent);
 	CameraBoom->TargetArmLength = 300.0f; // The camera follows at this distance behind the character	
 	CameraBoom->bUsePawnControlRotation = true; // Rotate the arm based on the controller
 
 	// Create a follow camera
-	FollowCamera = ObjectInitializer.CreateDefaultSubobject<UCameraComponent>(this, TEXT("FollowCamera"));
+	FollowCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("FollowCamera"));
 	FollowCamera->AttachTo(CameraBoom, USpringArmComponent::SocketName); // Attach the camera to the end of the boom and let the boom adjust to match the controller orientation
 	FollowCamera->bUsePawnControlRotation = false; // Camera does not rotate relative to arm
 
 	// Setup the Box collider
-	BoxCollisionComp = ObjectInitializer.CreateDefaultSubobject<UBoxComponent>(this, "BoxCollision");
+	BoxCollisionComp = CreateDefaultSubobject<UBoxComponent>("BoxCollision");
 	BoxCollisionComp->AttachParent = RootComponent;
 	BoxCollisionComp->SetRelativeScale3D(FVector(1, 1, 5));
 	BoxCollisionComp->OnComponentBeginOverlap.AddDynamic(this, &AAGEAGameCharacter::OnPlayerCollision);
 
 	// Create the particle system
-	ParticleSystem = ObjectInitializer.CreateDefaultSubobject<UParticleSystemComponent>(this, "Particle Effect");
+	ParticleSystem = CreateDefaultSubobject<UParticleSystemComponent>("Particle Effect");
 	ParticleSystem->AttachParent = RootComponent;
 
 	// Create the noise emitter
-	NoiseEmitter = ObjectInitializer.CreateDefaultSubobject<UPawnNoiseEmitterComponent>(this, TEXT("Noise Emitter"));
+	NoiseEmitter = CreateDefaultSubobject<UPawnNoiseEmitterComponent>(TEXT("Noise Emitter"));
 	
 	PlayerHealth = 100;
 	CameraZoomRate = 75.f;
@@ -99,22 +99,29 @@ void AAGEAGameCharacter::SetupPlayerInputComponent(class UInputComponent* InputC
 	InputComponent->BindAction("MakeNoise", IE_Pressed, this, &AAGEAGameCharacter::MakeDistractionNoise);
 
 	// Handle the weapon fire binding
-	InputComponent->BindAction("FireWeapon", IE_Pressed, this, &AAGEAGameCharacter::FireWeapon);
+	InputComponent->BindAction("ThrowGadget", IE_Pressed, this, &AAGEAGameCharacter::ThrowGadget);
 
-	// Activate the sneaking system
-	InputComponent->BindAction("ActivateSneak", IE_Pressed, this, &AAGEAGameCharacter::ActivateSneak);
-	InputComponent->BindAction("ActivateSneak", IE_Released, this, &AAGEAGameCharacter::DeactivateSneak);
+}
 
-	// Inventory system
-	InputComponent->BindAction("NextWeapon", IE_Pressed, this, &AAGEAGameCharacter::NextWeapon);
-	InputComponent->BindAction("PrevWeapon", IE_Pressed, this, &AAGEAGameCharacter::PrevWeapon);
+void AAGEAGameCharacter::ThrowGadget()
+{
+	FVector const MFLoc = GetActorLocation();
+	FRotator const MFRot = GetActorRotation();
+	FActorSpawnParameters SpawnParams;
+	SpawnParams.Owner = this;
+	SpawnParams.Instigator = this;
+	AGadget* const Gadget = GetWorld()->SpawnActor<AGadget>(GadgetClass, MFLoc, MFRot, SpawnParams);
+	if (Gadget)
+	{
+		GEngine->AddOnScreenDebugMessage(-1, 2.f, FColor::Black, "Throwing Gadget");
+	}
 }
 
 void AAGEAGameCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 
-	GiveDefaultWeapon();
+	//GiveDefaultWeapon();
 
 }
 

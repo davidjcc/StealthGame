@@ -72,7 +72,11 @@ struct FWeaponData
 UCLASS()
 class AGEAGAME_API AWeapon : public AActor
 {
-	GENERATED_UCLASS_BODY()
+	GENERATED_BODY()
+
+public: 
+
+	AWeapon(const FObjectInitializer & ObjectInitializer);
 
 	// Process the type of weapon being used
 	void ProcessWeapon();
@@ -83,11 +87,11 @@ class AGEAGAME_API AWeapon : public AActor
 	virtual void ProjectileFire();
 
 	// Collision component
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Collision")
+	UPROPERTY(VisibleAnywhere, Category = "Collision")
 	UBoxComponent* CollisionBox;
 
 	// Skeletal mesh component
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Mesh)
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = Mesh)
 	USkeletalMeshComponent* WeaponMesh;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Config)
