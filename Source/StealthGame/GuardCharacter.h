@@ -12,13 +12,13 @@ class STEALTHGAME_API AGuardCharacter : public ACharacter
 	GENERATED_BODY()
 
 private:
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Health", meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(EditDefaultsOnly, Category = "Health", meta = (AllowPrivateAccess = "true"))
 	float Health = 100.0f;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon", meta = (AllowPrivateAccess = "true"))
 	TSubclassOf<class AWeapon> WeaponSpawn;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly , Category = "Weapon", meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(VisibleDefaultsOnly, Category = "Weapon", meta = (AllowPrivateAccess = "true"))
 	AWeapon* CurrentWeapon = NULL;
 
 public:

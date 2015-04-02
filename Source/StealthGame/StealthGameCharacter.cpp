@@ -4,6 +4,8 @@
 #include "StealthGameCharacter.h"
 #include "Powerup.h"
 #include "TeleportGadget.h"
+#include "GuardCharacter.h"
+#include "Engine.h"
 
 AStealthGameCharacter::AStealthGameCharacter(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
@@ -36,8 +38,10 @@ AStealthGameCharacter::AStealthGameCharacter(const FObjectInitializer& ObjectIni
 	TopDownCameraComponent->bUsePawnControlRotation = false; // Camera does not rotate relative to arm
 
 	CollisionComp = ObjectInitializer.CreateDefaultSubobject<USphereComponent>(this, "CollisionComp");
-	CollisionComp->SetSphereRadius(200.f);
+	CollisionComp->SetSphereRadius(100.f);
 	CollisionComp->AttachTo(RootComponent);
+
+	CollisionComp->OnComponentHit.AddDynamic(this, &AStealthGameCharacter::OnCollision);
 
 	NumTeleportGadgets = FMath::Clamp(NumTeleportGadgets, 0, 5);
 }
@@ -69,6 +73,16 @@ void AStealthGameCharacter::Tick(float DeltaTime)
 void AStealthGameCharacter::BeginPlay()
 {
 	Super::BeginPlay();
+}
+
+void AStealthGameCharacter::OnCollision(AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
+{
+	AGuardCharacter* Guard = Cast<AGuardCharacter>(OtherActor);
+	if (Guard != NULL)
+	{
+		GEngine->AddOnScreenDebugMessage(-1, 2.f, FColor::Red, "Colliding with guard!");
+		bIsInStealth = false;
+	}
 }
 
 void AStealthGameCharacter::ZoomCamIn()
