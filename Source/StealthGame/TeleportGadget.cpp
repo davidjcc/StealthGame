@@ -12,7 +12,7 @@ ATeleportGadget::ATeleportGadget(const FObjectInitializer & ObjectInitializer) :
 	PrimaryActorTick.bCanEverTick = true;
 
 	CollisionComp = CreateDefaultSubobject<USphereComponent>(TEXT("CollisionComp"));
-	CollisionComp->InitSphereRadius(5.0f);
+	CollisionComp->InitSphereRadius(5.f);
 	CollisionComp->BodyInstance.SetCollisionProfileName("Gadget");
 	CollisionComp->OnComponentHit.AddDynamic(this, &ATeleportGadget::OnGadgetHit);
 	//CollisionComp->OnComponentBeginOverlap.AddDynamic(this, &ATeleportGadget::OnGadgetBeginOverlap);

@@ -59,7 +59,9 @@ class AStealthGameCharacter : public ACharacter
 
 	UPROPERTY(EditDefaultsOnly, Category = TeleportGadget)
 	bool bInfiniteTeleport = false;
+
 public:
+
 	AStealthGameCharacter(const FObjectInitializer& ObjectInitializer);
 
 	virtual void SetupPlayerInputComponent(UInputComponent* InputComponent) override;
@@ -104,8 +106,6 @@ public:
 
 	bool CanThrowGadget();
 	void ThrowTeleportGadget();
-
-	void TeleportPlayer(FVector pNewLocation);
 
 };
 

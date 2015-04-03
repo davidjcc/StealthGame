@@ -65,14 +65,14 @@ void APowerup::OnPlayerOverlap(class AActor* OtherActor, class UPrimitiveCompone
 		{
 			// If HealthPowerup
 		case EPowerup::EHealthPowerup:
-			player->UpdateHealth(20.f);
+			player->UpdateHealth(25.f);
 			Pickup();
 			break;
 
 			// If StealthPowerup
 		case EPowerup::EStealthPowerup:
 			Pickup();
-			player->UpdateStealthValue(20.f);			
+			player->UpdateStealthValue(25.f);			
 			break;
 
 		case EPowerup::ETeleportGadget:

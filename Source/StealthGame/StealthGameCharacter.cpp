@@ -189,8 +189,3 @@ void AStealthGameCharacter::ThrowTeleportGadget()
 			NumTeleportGadgets = FMath::Clamp(NumTeleportGadgets - 1, 0, 5);
 	}
 }
-
-void AStealthGameCharacter::TeleportPlayer(FVector pNewLocation)
-{
-	this->SetActorLocation(pNewLocation);
-}
