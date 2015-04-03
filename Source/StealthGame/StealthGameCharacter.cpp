@@ -111,6 +111,11 @@ void AStealthGameCharacter::UpdateHealth(float pHealth)
 		Health = FMath::Clamp(Health + pHealth, 0.0f, 100.f);
 }
 
+float AStealthGameCharacter::GetStealthValue()
+{
+	return StealthValue;
+}
+
 void AStealthGameCharacter::UpdateStealthValue(float pStealthValue)
 {
 	StealthValue = FMath::Clamp(StealthValue + pStealthValue, 0.0f, 100.0f);

@@ -29,7 +29,7 @@ class AStealthGameCharacter : public ACharacter
 	float Health = 100.f;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Stealth, meta = (AllowPrivateAccess = "true"))
-	float StealthValue = 100.f;
+	float StealthValue = 0.f;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Stealth, meta = (AllowPrivateAccess = "true"))
 	UMaterialInterface* DefaultMaterial;
@@ -38,7 +38,7 @@ class AStealthGameCharacter : public ACharacter
 	UMaterialInterface* StealthMaterial;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Stealth, meta = (AllowPrivateAccess = "true"))
-	int32 NumTeleportGadgets = 5;
+	int32 NumTeleportGadgets = 0;
 
 	float StealthDecay = 0.3f;
 
@@ -82,7 +82,9 @@ public:
 	float GetHealth() const { return Health; }
 	void UpdateHealth(float pHealth);
 
-	float GetStealthValue()	const { return StealthValue;	}
+	UFUNCTION(BlueprintCallable, Category = Stealth)
+	float GetStealthValue();
+	UFUNCTION(BlueprintCallable, Category = Stealth)
 	void UpdateStealthValue(float pStealthValue);
 
 	int32 GetNumTeleportGadgets(){	return NumTeleportGadgets; }
