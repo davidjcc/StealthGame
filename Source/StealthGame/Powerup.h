@@ -55,5 +55,8 @@ public:
 
 	UFUNCTION()
 	void OnPlayerOverlap(class AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult &SweepResult);
+
+	EPowerup::EPowerupType GetPowerupType();
+	void SetPowerupType(EPowerup::EPowerupType pPowerupType);
 	
 };

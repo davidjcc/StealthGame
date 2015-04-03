@@ -86,3 +86,13 @@ void APowerup::OnPlayerOverlap(class AActor* OtherActor, class UPrimitiveCompone
 		}
 	}
 }
+
+EPowerup::EPowerupType APowerup::GetPowerupType()
+{
+	return PowerupType;
+}
+
+void APowerup::SetPowerupType(EPowerup::EPowerupType pPowerupType)
+{
+	PowerupType = pPowerupType;
+}
