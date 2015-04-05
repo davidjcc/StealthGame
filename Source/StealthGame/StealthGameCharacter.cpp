@@ -170,7 +170,7 @@ void AStealthGameCharacter::DeactivateStealth()
 
 bool AStealthGameCharacter::CanThrowGadget()
 {
-	return (NumTeleportGadgets > 0) && (NumTeleportGadgets <= 5) && (GadgetClass != NULL);
+	return (NumTeleportGadgets > 0) && (NumTeleportGadgets <= 5) && (GadgetClass != NULL) && (GetVelocity() == FVector(0.f, 0.f, 0.f));
 }
 
 void AStealthGameCharacter::ThrowTeleportGadget()
@@ -184,6 +184,7 @@ void AStealthGameCharacter::ThrowTeleportGadget()
 		SpawnParams.Owner = this;
 		ATeleportGadget* Gadget = GetWorld()->SpawnActor<ATeleportGadget>(GadgetClass, SpawnLoc, SpawnRot, SpawnParams);
 		Gadget->SetOwner(this);
+		Gadget->Activate();
 
 		if (!bInfiniteTeleport)
 			NumTeleportGadgets = FMath::Clamp(NumTeleportGadgets - 1, 0, 5);

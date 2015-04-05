@@ -82,6 +82,7 @@ public:
 	void ZoomCamOut();
 
 	float GetHealth() const { return Health; }
+	UFUNCTION(BlueprintCallable, Category = Health)
 	void UpdateHealth(float pHealth);
 
 	UFUNCTION(BlueprintCallable, Category = Stealth)

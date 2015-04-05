@@ -12,14 +12,15 @@ ATeleportGadget::ATeleportGadget(const FObjectInitializer & ObjectInitializer) :
 	PrimaryActorTick.bCanEverTick = true;
 
 	CollisionComp = CreateDefaultSubobject<USphereComponent>(TEXT("CollisionComp"));
-	CollisionComp->InitSphereRadius(5.f);
-	CollisionComp->BodyInstance.SetCollisionProfileName("Gadget");
+	CollisionComp->InitSphereRadius(50.f);
+	//CollisionComp->BodyInstance.SetCollisionProfileName("Gadget");
 	CollisionComp->OnComponentHit.AddDynamic(this, &ATeleportGadget::OnGadgetHit);
+	CollisionComp->SetSimulatePhysics(true);
 	//CollisionComp->OnComponentBeginOverlap.AddDynamic(this, &ATeleportGadget::OnGadgetBeginOverlap);
 
 	CollisionComp->SetWalkableSlopeOverride(FWalkableSlopeOverride(WalkableSlope_Unwalkable, 0.f));
 	CollisionComp->CanCharacterStepUpOn = ECB_No;
-	CollisionComp->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+	//CollisionComp->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
 
 	RootComponent = CollisionComp;
 
