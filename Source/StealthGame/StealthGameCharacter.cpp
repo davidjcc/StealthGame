@@ -60,6 +60,9 @@ void AStealthGameCharacter::SetupPlayerInputComponent(UInputComponent* InputComp
 	InputComponent->BindAction("StopMovement", IE_Pressed, this, &AStealthGameCharacter::StopMovement);
 
 	InputComponent->BindAction("ThrowGadget", IE_Pressed, this, &AStealthGameCharacter::ThrowTeleportGadget);
+
+	InputComponent->BindAction("ActivateThrowMode", IE_Pressed, this, &AStealthGameCharacter::ActivateThrowMode);
+	InputComponent->BindAction("ActivateThrowMode", IE_Released, this, &AStealthGameCharacter::DeactivateThrowMode);
 }
 
 void AStealthGameCharacter::Tick(float DeltaTime)
@@ -188,5 +191,22 @@ void AStealthGameCharacter::ThrowTeleportGadget()
 
 		if (!bInfiniteTeleport)
 			NumTeleportGadgets = FMath::Clamp(NumTeleportGadgets - 1, 0, 5);
+	}
+}
+
+void AStealthGameCharacter::ActivateThrowMode()
+{
+	if (!bThrowMode)
+	{
+		bThrowMode = true;
+	}
+}
+
+void AStealthGameCharacter::DeactivateThrowMode()
+{
+	if (bThrowMode)
+	{
+		bThrowMode = false;
+		ThrowTeleportGadget();
 	}
 }

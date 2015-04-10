@@ -60,6 +60,10 @@ class AStealthGameCharacter : public ACharacter
 	UPROPERTY(EditDefaultsOnly, Category = TeleportGadget)
 	bool bInfiniteTeleport = false;
 
+	// If true then the player's rotation will match that of the cursor
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = TeleportGadget, meta = (AllowPrivateAccess = "true"))
+	bool bThrowMode = false;
+
 public:
 
 	AStealthGameCharacter(const FObjectInitializer& ObjectInitializer);
@@ -107,6 +111,10 @@ public:
 
 	bool CanThrowGadget();
 	void ThrowTeleportGadget();
+
+	void ActivateThrowMode();
+	void DeactivateThrowMode();
+	void SetThrowMode(bool pThrowMode) { bThrowMode = pThrowMode; }
 
 };
 

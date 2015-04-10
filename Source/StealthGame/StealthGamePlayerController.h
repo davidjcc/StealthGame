@@ -11,6 +11,7 @@ class AStealthGamePlayerController : public APlayerController
 	UPawnNoiseEmitterComponent* NoiseComponent;
 
 public:
+
 	AStealthGamePlayerController(const FObjectInitializer& ObjectInitializer);
 
 protected:
