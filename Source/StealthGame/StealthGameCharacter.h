@@ -4,6 +4,7 @@
 #include "StealthGameCharacter.generated.h"
 
 class ATeleportGadget;
+class AGadgetBase;
 
 UCLASS(Blueprintable)
 class AStealthGameCharacter : public ACharacter
@@ -37,8 +38,14 @@ class AStealthGameCharacter : public ACharacter
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Stealth, meta = (AllowPrivateAccess = "true"))
 	UMaterialInterface* StealthMaterial;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Stealth, meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Gadget, meta = (AllowPrivateAccess = "true"))
 	int32 NumTeleportGadgets = 0;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Gadget, meta = (AllowPrivateAccess = "true"))
+	int32 NumDecoy = 0;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Gadget, meta = (AllowPrivateAccess = "true"))
+	int32 NumDistract = 0;
 
 	float StealthDecay = 0.3f;
 
@@ -48,8 +55,14 @@ class AStealthGameCharacter : public ACharacter
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Stealth, meta = (AllowPrivateAccess = "true"))
 	USoundBase* DistractionNoise;
 
-	UPROPERTY(EditDefaultsOnly, Category = Gadget)
-	TSubclassOf<ATeleportGadget> GadgetClass = NULL;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Gadget, meta = (AllowPrivateAccess = "true"))
+	TSubclassOf<ATeleportGadget> TeleportGadgetClass = NULL;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Gadget, meta = (AllowPrivateAccess = "true"))
+	TSubclassOf<AGadgetBase> DecoyGadgetClass = NULL;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Gadget, meta = (AllowPrivateAccess = "true"))
+	TSubclassOf<AGadgetBase> DistractGadgetClass = NULL;
 
 	UPROPERTY(EditDefaultsOnly, Category = Stealth)
 	bool bInfiniteStealth = false;
@@ -58,11 +71,14 @@ class AStealthGameCharacter : public ACharacter
 	bool bInfiniteHealth = false;
 
 	UPROPERTY(EditDefaultsOnly, Category = TeleportGadget)
-	bool bInfiniteTeleport = false;
+	bool bInfiniteGadgets = false;
 
 	// If true then the player's rotation will match that of the cursor
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = TeleportGadget, meta = (AllowPrivateAccess = "true"))
 	bool bThrowMode = false;
+
+	UPROPERTY(BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
+	int32 InventoryIndex = 1;
 
 public:
 
@@ -107,14 +123,18 @@ public:
 	// Stops the characters movement when space bar is pressed
 	void StopMovement() { GetCharacterMovement()->StopMovementImmediately(); }
 
-	void MakeDistractionNoise();
-
-	bool CanThrowGadget();
-	void ThrowTeleportGadget();
+	void UseSelectedGadget();
+	void UseTeleportGadget();
+	void UseDecoyGadget();
+	void UseDistractionGadget();
 
 	void ActivateThrowMode();
 	void DeactivateThrowMode();
 	void SetThrowMode(bool pThrowMode) { bThrowMode = pThrowMode; }
+
+	void SelectGadget1();
+	void SelectGadget2();
+	void SelectGadget3();
 
 };
 

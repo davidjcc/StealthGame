@@ -5,6 +5,7 @@
 #include "Powerup.h"
 #include "TeleportGadget.h"
 #include "GuardCharacter.h"
+#include "GadgetBase.h"
 #include "Engine.h"
 
 AStealthGameCharacter::AStealthGameCharacter(const FObjectInitializer& ObjectInitializer)
@@ -59,10 +60,12 @@ void AStealthGameCharacter::SetupPlayerInputComponent(UInputComponent* InputComp
 
 	InputComponent->BindAction("StopMovement", IE_Pressed, this, &AStealthGameCharacter::StopMovement);
 
-	InputComponent->BindAction("ThrowGadget", IE_Pressed, this, &AStealthGameCharacter::ThrowTeleportGadget);
-
 	InputComponent->BindAction("ActivateThrowMode", IE_Pressed, this, &AStealthGameCharacter::ActivateThrowMode);
 	InputComponent->BindAction("ActivateThrowMode", IE_Released, this, &AStealthGameCharacter::DeactivateThrowMode);
+
+	InputComponent->BindAction("SelectGadget1", IE_Pressed, this, &AStealthGameCharacter::SelectGadget1);
+	InputComponent->BindAction("SelectGadget2", IE_Pressed, this, &AStealthGameCharacter::SelectGadget2);
+	InputComponent->BindAction("SelectGadget3", IE_Pressed, this, &AStealthGameCharacter::SelectGadget3);
 }
 
 void AStealthGameCharacter::Tick(float DeltaTime)
@@ -126,7 +129,7 @@ void AStealthGameCharacter::UpdateStealthValue(float pStealthValue)
 
 void AStealthGameCharacter::UpdateNumTeleportGadgets(int32 pTeleportGadgets)
 {
-	if (!bInfiniteTeleport)
+	if (!bInfiniteGadgets)
 		NumTeleportGadgets = FMath::Clamp(NumTeleportGadgets + pTeleportGadgets, 0, 5);
 }
 
@@ -171,26 +174,67 @@ void AStealthGameCharacter::DeactivateStealth()
 	}
 }
 
-bool AStealthGameCharacter::CanThrowGadget()
+void AStealthGameCharacter::UseSelectedGadget()
 {
-	return (NumTeleportGadgets > 0) && (NumTeleportGadgets <= 5) && (GadgetClass != NULL) && (GetVelocity() == FVector(0.f, 0.f, 0.f));
+	if (InventoryIndex == 1)
+		UseTeleportGadget();
+	else if (InventoryIndex == 2)
+		UseDecoyGadget();
+	else if (InventoryIndex == 3)
+		UseDistractionGadget();
 }
 
-void AStealthGameCharacter::ThrowTeleportGadget()
+void AStealthGameCharacter::UseTeleportGadget()
 {
-	if (CanThrowGadget())
+	if (NumTeleportGadgets > 0 && TeleportGadgetClass != NULL)
 	{
 		FVector SpawnLoc = GetMesh()->GetSocketLocation("ThrowSocket");
 		FRotator SpawnRot = GetActorRotation();
 		FActorSpawnParameters SpawnParams;
 		SpawnParams.Instigator = Instigator;
 		SpawnParams.Owner = this;
-		ATeleportGadget* Gadget = GetWorld()->SpawnActor<ATeleportGadget>(GadgetClass, SpawnLoc, SpawnRot, SpawnParams);
+		ATeleportGadget* Gadget = GetWorld()->SpawnActor<ATeleportGadget>(TeleportGadgetClass, SpawnLoc, SpawnRot, SpawnParams);
 		Gadget->SetOwner(this);
 		Gadget->Activate();
 
-		if (!bInfiniteTeleport)
+		if (!bInfiniteGadgets)
 			NumTeleportGadgets = FMath::Clamp(NumTeleportGadgets - 1, 0, 5);
+	}
+}
+
+void AStealthGameCharacter::UseDecoyGadget()
+{
+	if (NumDecoy > 0 && DecoyGadgetClass != NULL)
+	{
+		FVector SpawnLoc = GetMesh()->GetSocketLocation("ThrowSocket");
+		FRotator SpawnRot = GetActorRotation();
+		FActorSpawnParameters SpawnParams;
+		SpawnParams.Instigator = Instigator;
+		SpawnParams.Owner = this;
+		AGadgetBase* Gadget = GetWorld()->SpawnActor<AGadgetBase>(DecoyGadgetClass, SpawnLoc, SpawnRot, SpawnParams);
+		Gadget->SetOwner(this);
+		Gadget->Activate();
+
+		if (!bInfiniteGadgets)
+			NumTeleportGadgets = FMath::Clamp(NumDecoy - 1, 0, 5);
+	}
+}
+
+void AStealthGameCharacter::UseDistractionGadget()
+{
+	if (NumDistract > 0 && DecoyGadgetClass != NULL)
+	{
+		FVector SpawnLoc = GetMesh()->GetSocketLocation("ThrowSocket");
+		FRotator SpawnRot = GetActorRotation();
+		FActorSpawnParameters SpawnParams;
+		SpawnParams.Instigator = Instigator;
+		SpawnParams.Owner = this;
+		AGadgetBase* Gadget = GetWorld()->SpawnActor<AGadgetBase>(DistractGadgetClass, SpawnLoc, SpawnRot, SpawnParams);
+		Gadget->SetOwner(this);
+		Gadget->Activate();
+
+		if (!bInfiniteGadgets)
+			NumTeleportGadgets = FMath::Clamp(NumDistract - 1, 0, 5);
 	}
 }
 
@@ -207,6 +251,21 @@ void AStealthGameCharacter::DeactivateThrowMode()
 	if (bThrowMode)
 	{
 		bThrowMode = false;
-		ThrowTeleportGadget();
+		UseSelectedGadget();
 	}
+}
+
+void AStealthGameCharacter::SelectGadget1()
+{
+	InventoryIndex = 1;
+}
+
+void AStealthGameCharacter::SelectGadget2()
+{
+	InventoryIndex = 2;
+}
+
+void AStealthGameCharacter::SelectGadget3()
+{
+	InventoryIndex = 3;
 }
