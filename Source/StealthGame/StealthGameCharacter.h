@@ -74,7 +74,7 @@ class AStealthGameCharacter : public ACharacter
 	bool bInfiniteGadgets = false;
 
 	// If true then the player's rotation will match that of the cursor
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = TeleportGadget, meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(BlueprintReadOnly, Category = TeleportGadget, meta = (AllowPrivateAccess = "true"))
 	bool bThrowMode = false;
 
 	UPROPERTY(BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
@@ -125,6 +125,7 @@ public:
 
 	void UseSelectedGadget();
 	void UseTeleportGadget();
+	UFUNCTION(BlueprintImplementableEvent)
 	void UseDecoyGadget();
 	void UseDistractionGadget();
 
@@ -132,9 +133,9 @@ public:
 	void DeactivateThrowMode();
 	void SetThrowMode(bool pThrowMode) { bThrowMode = pThrowMode; }
 
-	void SelectGadget1();
-	void SelectGadget2();
-	void SelectGadget3();
+	void SelectTeleportGadget();
+	void SelectDecoyGadget();
+	void SelectDistractionGadget();
 
 };
 

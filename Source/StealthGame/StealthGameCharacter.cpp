@@ -63,9 +63,9 @@ void AStealthGameCharacter::SetupPlayerInputComponent(UInputComponent* InputComp
 	InputComponent->BindAction("ActivateThrowMode", IE_Pressed, this, &AStealthGameCharacter::ActivateThrowMode);
 	InputComponent->BindAction("ActivateThrowMode", IE_Released, this, &AStealthGameCharacter::DeactivateThrowMode);
 
-	InputComponent->BindAction("SelectGadget1", IE_Pressed, this, &AStealthGameCharacter::SelectGadget1);
-	InputComponent->BindAction("SelectGadget2", IE_Pressed, this, &AStealthGameCharacter::SelectGadget2);
-	InputComponent->BindAction("SelectGadget3", IE_Pressed, this, &AStealthGameCharacter::SelectGadget3);
+	InputComponent->BindAction("SelectGadget1", IE_Pressed, this, &AStealthGameCharacter::SelectTeleportGadget);
+	InputComponent->BindAction("SelectGadget2", IE_Pressed, this, &AStealthGameCharacter::SelectDecoyGadget);
+	InputComponent->BindAction("SelectGadget3", IE_Pressed, this, &AStealthGameCharacter::SelectDistractionGadget);
 }
 
 void AStealthGameCharacter::Tick(float DeltaTime)
@@ -202,24 +202,6 @@ void AStealthGameCharacter::UseTeleportGadget()
 	}
 }
 
-void AStealthGameCharacter::UseDecoyGadget()
-{
-	if (NumDecoy > 0 && DecoyGadgetClass != NULL)
-	{
-		FVector SpawnLoc = GetMesh()->GetSocketLocation("ThrowSocket");
-		FRotator SpawnRot = GetActorRotation();
-		FActorSpawnParameters SpawnParams;
-		SpawnParams.Instigator = Instigator;
-		SpawnParams.Owner = this;
-		AGadgetBase* Gadget = GetWorld()->SpawnActor<AGadgetBase>(DecoyGadgetClass, SpawnLoc, SpawnRot, SpawnParams);
-		Gadget->SetOwner(this);
-		Gadget->Activate();
-
-		if (!bInfiniteGadgets)
-			NumTeleportGadgets = FMath::Clamp(NumDecoy - 1, 0, 5);
-	}
-}
-
 void AStealthGameCharacter::UseDistractionGadget()
 {
 	if (NumDistract > 0 && DecoyGadgetClass != NULL)
@@ -255,17 +237,17 @@ void AStealthGameCharacter::DeactivateThrowMode()
 	}
 }
 
-void AStealthGameCharacter::SelectGadget1()
+void AStealthGameCharacter::SelectTeleportGadget()
 {
 	InventoryIndex = 1;
 }
 
-void AStealthGameCharacter::SelectGadget2()
+void AStealthGameCharacter::SelectDecoyGadget()
 {
 	InventoryIndex = 2;
 }
 
-void AStealthGameCharacter::SelectGadget3()
+void AStealthGameCharacter::SelectDistractionGadget()
 {
 	InventoryIndex = 3;
 }
