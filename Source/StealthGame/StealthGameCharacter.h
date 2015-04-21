@@ -42,10 +42,10 @@ class AStealthGameCharacter : public ACharacter
 	int32 NumTeleportGadgets = 0;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Gadget, meta = (AllowPrivateAccess = "true"))
-	int32 NumDecoy = 0;
+	int32 NumDecoyGadgets = 0;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Gadget, meta = (AllowPrivateAccess = "true"))
-	int32 NumDistract = 0;
+	int32 NumDistractGadgets = 0;
 
 	float StealthDecay = 0.3f;
 

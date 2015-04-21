@@ -204,7 +204,7 @@ void AStealthGameCharacter::UseTeleportGadget()
 
 void AStealthGameCharacter::UseDistractionGadget()
 {
-	if (NumDistract > 0 && DecoyGadgetClass != NULL)
+	if (NumDistractGadgets > 0 && DecoyGadgetClass != NULL)
 	{
 		FVector SpawnLoc = GetMesh()->GetSocketLocation("ThrowSocket");
 		FRotator SpawnRot = GetActorRotation();
@@ -216,7 +216,7 @@ void AStealthGameCharacter::UseDistractionGadget()
 		Gadget->Activate();
 
 		if (!bInfiniteGadgets)
-			NumTeleportGadgets = FMath::Clamp(NumDistract - 1, 0, 5);
+			NumDistractGadgets = FMath::Clamp(NumDistractGadgets - 1, 0, 5);
 	}
 }
 
