@@ -5,7 +5,6 @@
 #include "Powerup.h"
 #include "TeleportGadget.h"
 #include "GuardCharacter.h"
-#include "GadgetBase.h"
 #include "Engine.h"
 
 AStealthGameCharacter::AStealthGameCharacter(const FObjectInitializer& ObjectInitializer)
@@ -204,20 +203,20 @@ void AStealthGameCharacter::UseTeleportGadget()
 
 void AStealthGameCharacter::UseDistractionGadget()
 {
-	if (NumDistractGadgets > 0 && DecoyGadgetClass != NULL)
-	{
-		FVector SpawnLoc = GetMesh()->GetSocketLocation("ThrowSocket");
-		FRotator SpawnRot = GetActorRotation();
-		FActorSpawnParameters SpawnParams;
-		SpawnParams.Instigator = Instigator;
-		SpawnParams.Owner = this;
-		AGadgetBase* Gadget = GetWorld()->SpawnActor<AGadgetBase>(DistractGadgetClass, SpawnLoc, SpawnRot, SpawnParams);
-		Gadget->SetOwner(this);
-		Gadget->Activate();
-
-		if (!bInfiniteGadgets)
-			NumDistractGadgets = FMath::Clamp(NumDistractGadgets - 1, 0, 5);
-	}
+// 	if (NumDistractGadgets > 0 && DecoyGadgetClass != NULL)
+// 	{
+// 		FVector SpawnLoc = GetMesh()->GetSocketLocation("ThrowSocket");
+// 		FRotator SpawnRot = GetActorRotation();
+// 		FActorSpawnParameters SpawnParams;
+// 		SpawnParams.Instigator = Instigator;
+// 		SpawnParams.Owner = this;
+// 		AGadgetBase* Gadget = GetWorld()->SpawnActor<AGadgetBase>(DistractGadgetClass, SpawnLoc, SpawnRot, SpawnParams);
+// 		Gadget->SetOwner(this);
+// 		Gadget->Activate();
+// 
+// 		if (!bInfiniteGadgets)
+// 			NumDistractGadgets = FMath::Clamp(NumDistractGadgets - 1, 0, 5);
+// 	}
 }
 
 void AStealthGameCharacter::ActivateThrowMode()

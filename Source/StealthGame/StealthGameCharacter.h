@@ -58,11 +58,11 @@ class AStealthGameCharacter : public ACharacter
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Gadget, meta = (AllowPrivateAccess = "true"))
 	TSubclassOf<ATeleportGadget> TeleportGadgetClass = NULL;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Gadget, meta = (AllowPrivateAccess = "true"))
-	TSubclassOf<AGadgetBase> DecoyGadgetClass = NULL;
+	//UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Gadget, meta = (AllowPrivateAccess = "true"))
+	//TSubclassOf<AGadgetBase> DecoyGadgetClass = NULL;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Gadget, meta = (AllowPrivateAccess = "true"))
-	TSubclassOf<AGadgetBase> DistractGadgetClass = NULL;
+	//UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Gadget, meta = (AllowPrivateAccess = "true"))
+	//TSubclassOf<AGadgetBase> DistractGadgetClass = NULL;
 
 	UPROPERTY(EditDefaultsOnly, Category = Stealth)
 	bool bInfiniteStealth = false;

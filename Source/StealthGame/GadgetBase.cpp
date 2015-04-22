@@ -5,25 +5,27 @@
 
 
 // Sets default values
-AGadgetBase::AGadgetBase(const class FObjectInitializer & ObjectInit) : Super(ObjectInit)
+AGadgetBase::AGadgetBase(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer)
 {
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
+	InitialLifeSpan = 3.0f;
 
-	CollisionComp = ObjectInit.CreateDefaultSubobject<USphereComponent>(this, "CollisionComponent");
-	CollisionComp->SetSphereRadius(50.f);
-	RootComponent = CollisionComp;
-	
-	Mesh = ObjectInit.CreateDefaultSubobject<UStaticMeshComponent>(this, "Mesh");
-	Mesh->AttachTo(RootComponent);
+	CollisionComponent = ObjectInitializer.CreateDefaultSubobject<USphereComponent>(this, TEXT("CollisionComponent"));
+	CollisionComponent->OnComponentHit.AddDynamic(this, &AGadgetBase::OnHit);
+	CollisionComponent->SetSphereRadius(200.0f);
+	CollisionComponent->SetSimulatePhysics(true);
+	RootComponent = CollisionComponent;
+
+	MovementComponent = ObjectInitializer.CreateDefaultSubobject<UProjectileMovementComponent>(this, TEXT("MovementComponent"));
 
 }
 
-void AGadgetBase::SetOwner(AStealthGameCharacter* NewPawn)
+void AGadgetBase::OnHit(AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
 {
-	if (NewPawn != MyPawn)
+	if (OtherActor != NULL && OtherActor != this)
 	{
-		MyPawn = NewPawn;
+		bIsActive = true;
+		Activate();
 	}
 }
-
