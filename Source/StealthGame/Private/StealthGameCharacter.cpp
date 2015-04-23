@@ -95,9 +95,7 @@ void AStealthGameCharacter::ZoomCamIn()
 {
 	if (CameraBoom->TargetArmLength <= CamMax && CameraBoom->TargetArmLength >= CamMin)
 	{
-		CameraBoom->TargetArmLength -= CamZoomValue;
-		if (CameraBoom->TargetArmLength < CamMin)
-			CameraBoom->TargetArmLength = CamMin;
+		CameraBoom->TargetArmLength = FMath::Clamp(CameraBoom->TargetArmLength - CamZoomValue, CamMin, CamMax);
 	}
 }
 
@@ -105,9 +103,7 @@ void AStealthGameCharacter::ZoomCamOut()
 {
 	if (CameraBoom->TargetArmLength <= CamMax && CameraBoom->TargetArmLength >= CamMin)	{
 		
-		CameraBoom->TargetArmLength += CamZoomValue;		
-		if (CameraBoom->TargetArmLength > CamMax)
-			CameraBoom->TargetArmLength = CamMax;
+		CameraBoom->TargetArmLength = FMath::Clamp(CameraBoom->TargetArmLength + CamZoomValue, CamMin, CamMax);
 	}
 }
 
@@ -178,6 +174,7 @@ void AStealthGameCharacter::ThrowGadget()
 {
 	if (CanSpawnGadget())
 	{
+		bIsUsingGadget = true;
 		const FVector SpawnLocation = GetMesh()->GetSocketLocation(ThrowSocket);
 		const FRotator SpawnRotation = GetActorRotation();
 		FActorSpawnParameters SpawnParams;
@@ -189,6 +186,8 @@ void AStealthGameCharacter::ThrowGadget()
 		SpawnGadget->Activate();
 
 		DetermineNumGadgetAmount();
+
+		bIsUsingGadget = false;
 	}
 }
 

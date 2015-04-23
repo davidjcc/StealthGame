@@ -77,6 +77,9 @@ class AStealthGameCharacter : public ACharacter
 
 	FName ThrowSocket = "ThrowSocket";
 
+	UPROPERTY(BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
+	bool bIsUsingGadget = false;
+
 public:
 
 	AStealthGameCharacter(const FObjectInitializer& ObjectInitializer);
