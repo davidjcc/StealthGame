@@ -5,6 +5,7 @@
 #include "Powerup.h"
 #include "GuardCharacter.h"
 #include "Engine.h"
+#include "GadgetBase.h"
 
 AStealthGameCharacter::AStealthGameCharacter(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
@@ -43,6 +44,7 @@ AStealthGameCharacter::AStealthGameCharacter(const FObjectInitializer& ObjectIni
 	CollisionComp->OnComponentHit.AddDynamic(this, &AStealthGameCharacter::OnCollision);
 
 	NumTeleportGadgets = FMath::Clamp(NumTeleportGadgets, 0, 5);
+	GadgetInventory.SetNum(3);
 }
 
 void AStealthGameCharacter::SetupPlayerInputComponent(UInputComponent* InputComponent)
@@ -172,50 +174,22 @@ void AStealthGameCharacter::DeactivateStealth()
 	}
 }
 
-void AStealthGameCharacter::UseSelectedGadget()
+void AStealthGameCharacter::ThrowGadget()
 {
-	if (InventoryIndex == 1)
-		UseTeleportGadget();
-	else if (InventoryIndex == 2)
-		UseDecoyGadget();
-	else if (InventoryIndex == 3)
-		UseDistractionGadget();
-}
+	if (CanSpawnGadget())
+	{
+		const FVector SpawnLocation = GetMesh()->GetSocketLocation(ThrowSocket);
+		const FRotator SpawnRotation = GetActorRotation();
+		FActorSpawnParameters SpawnParams;
+		SpawnParams.Instigator = Instigator;
+		SpawnParams.Owner = this;
 
-void AStealthGameCharacter::UseTeleportGadget()
-{
-// 	if (NumTeleportGadgets > 0 && TeleportGadgetClass != NULL)
-// 	{
-// 		FVector SpawnLoc = GetMesh()->GetSocketLocation("ThrowSocket");
-// 		FRotator SpawnRot = GetActorRotation();
-// 		FActorSpawnParameters SpawnParams;
-// 		SpawnParams.Instigator = Instigator;
-// 		SpawnParams.Owner = this;
-// 		ATeleportGadget* Gadget = GetWorld()->SpawnActor<ATeleportGadget>(TeleportGadgetClass, SpawnLoc, SpawnRot, SpawnParams);
-// 		Gadget->SetOwner(this);
-// 		Gadget->Activate();
-// 
-// 		if (!bInfiniteGadgets)
-// 			NumTeleportGadgets = FMath::Clamp(NumTeleportGadgets - 1, 0, 5);
-// 	}
-}
+		AGadgetBase* SpawnGadget = GetWorld()->SpawnActor<AGadgetBase>(GadgetInventory[InventoryIndex-1], SpawnLocation, SpawnRotation, SpawnParams);
+		CurrentGadget = SpawnGadget;
+		SpawnGadget->Activate();
 
-void AStealthGameCharacter::UseDistractionGadget()
-{
-// 	if (NumDistractGadgets > 0 && DecoyGadgetClass != NULL)
-// 	{
-// 		FVector SpawnLoc = GetMesh()->GetSocketLocation("ThrowSocket");
-// 		FRotator SpawnRot = GetActorRotation();
-// 		FActorSpawnParameters SpawnParams;
-// 		SpawnParams.Instigator = Instigator;
-// 		SpawnParams.Owner = this;
-// 		AGadgetBase* Gadget = GetWorld()->SpawnActor<AGadgetBase>(DistractGadgetClass, SpawnLoc, SpawnRot, SpawnParams);
-// 		Gadget->SetOwner(this);
-// 		Gadget->Activate();
-// 
-// 		if (!bInfiniteGadgets)
-// 			NumDistractGadgets = FMath::Clamp(NumDistractGadgets - 1, 0, 5);
-// 	}
+		DetermineNumGadgetAmount();
+	}
 }
 
 void AStealthGameCharacter::ActivateThrowMode()
@@ -231,7 +205,7 @@ void AStealthGameCharacter::DeactivateThrowMode()
 	if (bThrowMode)
 	{
 		bThrowMode = false;
-		UseSelectedGadget();
+		ThrowGadget();
 	}
 }
 
@@ -248,4 +222,38 @@ void AStealthGameCharacter::SelectDecoyGadget()
 void AStealthGameCharacter::SelectDistractionGadget()
 {
 	InventoryIndex = 3;
+}
+
+bool AStealthGameCharacter::CanSpawnGadget()
+{
+	bool canSpawn = false;
+	for (int i = 0; i < GadgetInventory.Num(); ++i)
+	{
+		if (GadgetInventory[i] != NULL)
+			canSpawn = true;
+		else canSpawn = false;
+	}
+
+	return canSpawn;
+}
+
+void AStealthGameCharacter::DetermineNumGadgetAmount()
+{
+	if (!bInfiniteGadgets)
+	{
+		switch (CurrentGadget->GetGadgetType())
+		{
+		case ETELEPORT:
+			NumTeleportGadgets = FMath::Clamp(NumTeleportGadgets - 1, 0, 100);
+			break;
+		case EDECOY:
+			NumDecoyGadgets = FMath::Clamp(NumDecoyGadgets - 1, 0, 100);
+			break;
+		case EDISTRACT:
+			NumDistractGadgets = FMath::Clamp(NumDistractGadgets - 1, 0, 100);
+			break;
+		default:
+			break;
+		}
+	}
 }

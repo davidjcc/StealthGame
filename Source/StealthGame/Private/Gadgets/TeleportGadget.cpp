@@ -8,6 +8,8 @@
 
 ATeleportGadget::ATeleportGadget(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer)
 {
-	Mesh = ObjectInitializer.CreateDefaultSubobject<UStaticMeshComponent>(this, "Mesh");
-	Mesh->AttachTo(RootComponent);
+	GadgetType = EGadgetType::ETELEPORT;
+
+	MovementComponent->InitialSpeed = 2000.0f;
+	MovementComponent->MaxSpeed = 2000.0f;
 }

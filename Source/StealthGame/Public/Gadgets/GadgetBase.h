@@ -10,12 +10,18 @@
 	BASE CLASS FOR EACH THROWABLE GADGET
 */
 
+enum EGadgetType {
+	ETELEPORT,
+	EDECOY,
+	EDISTRACT
+};
+
 UCLASS()
 class STEALTHGAME_API AGadgetBase : public AActor
 {
 	GENERATED_BODY()
 
-private:
+protected:
 
 	UPROPERTY(VisibleAnywhere, meta = (AllowPrivateAccess = "true"))
 	class USphereComponent* CollisionComponent;
@@ -23,9 +29,13 @@ private:
 	UPROPERTY(VisibleAnywhere, meta = (AllowPrivateAccess = "true"))
 	class UProjectileMovementComponent* MovementComponent;
 
+	UPROPERTY(VisibleAnywhere, meta = (AllowPrivateAccess = "true"))
+	UStaticMeshComponent* Mesh;
+
 	UPROPERTY(EditDefaultsOnly, meta = (AllowPrivateAccess = "true"))
 	bool bIsActive = false;
 
+	EGadgetType GadgetType;
 	
 public:	
 	// Sets default values for this actor's properties
@@ -39,5 +49,7 @@ public:
 	
 	FORCEINLINE UProjectileMovementComponent* GetMovementComponent() { return MovementComponent; }
 	FORCEINLINE USphereComponent* GetCollisionComponent() { return CollisionComponent; }
+
+	FORCEINLINE EGadgetType GetGadgetType() { return GadgetType; }
 
 };

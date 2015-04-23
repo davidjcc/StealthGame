@@ -12,10 +12,6 @@ UCLASS()
 class ATeleportGadget : public AGadgetBase
 {
 	GENERATED_BODY()
-private:
-
-	UPROPERTY(VisibleAnywhere, meta = (AllowPrivateAccess = "true"))
-	UStaticMeshComponent* Mesh;
 
 public:
 

@@ -13,11 +13,6 @@ class STEALTHGAME_API ADistractGadget : public AGadgetBase
 {
 	GENERATED_BODY()
 
-private:
-
-	UPROPERTY(VisibleAnywhere, meta = (AllowPrivateAccess = "true"))
-	UStaticMeshComponent* Mesh;
-
 public:
 
 	ADistractGadget(const FObjectInitializer& ObjectInitializer);

@@ -5,6 +5,8 @@
 #include "Gadgets/GadgetBase.h"
 #include "DecoyGadget.generated.h"
 
+class DecoyGadgetPawn;
+
 /**
  * 
  */
@@ -12,14 +14,14 @@ UCLASS()
 class STEALTHGAME_API ADecoyGadget : public AGadgetBase
 {
 	GENERATED_BODY()
-	
-private:
 
-	UPROPERTY(VisibleAnywhere, meta = (AllowPrivateAccess = "true"))
-	USkeletalMeshComponent* Mesh;
+private:
+	UPROPERTY(EditDefaultsOnly, meta = (AllowPrivateAccess = "true"))
+	TSubclassOf<class ADecoyGadgetPawn> DecoyPawnClass;
 
 public:
 
 	ADecoyGadget(const FObjectInitializer& ObjectInitializer);
 	
+	void SpawnDecoy();
 };

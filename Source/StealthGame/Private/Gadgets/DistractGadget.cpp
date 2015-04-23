@@ -8,5 +8,5 @@
 
 ADistractGadget::ADistractGadget(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer)
 {
-
+	GadgetType = EGadgetType::EDISTRACT;
 }

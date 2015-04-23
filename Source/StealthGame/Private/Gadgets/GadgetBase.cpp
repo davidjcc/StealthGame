@@ -2,6 +2,7 @@
 
 #include "StealthGame.h"
 #include "GadgetBase.h"
+#include "Engine.h"
 
 
 // Sets default values
@@ -13,12 +14,19 @@ AGadgetBase::AGadgetBase(const FObjectInitializer& ObjectInitializer) : Super(Ob
 
 	CollisionComponent = ObjectInitializer.CreateDefaultSubobject<USphereComponent>(this, TEXT("CollisionComponent"));
 	CollisionComponent->OnComponentHit.AddDynamic(this, &AGadgetBase::OnHit);
-	CollisionComponent->SetSphereRadius(20.0f);
+	CollisionComponent->SetSphereRadius(15.f);
+	CollisionComponent->SetCollisionProfileName("Gadget");
+	//CollisionComponent->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
 	CollisionComponent->SetSimulatePhysics(true);
 	RootComponent = CollisionComponent;
 
-	MovementComponent = ObjectInitializer.CreateDefaultSubobject<UProjectileMovementComponent>(this, TEXT("MovementComponent"));
+	Mesh = ObjectInitializer.CreateDefaultSubobject<UStaticMeshComponent>(this, TEXT("Mesh"));
+	Mesh->SetRelativeScale3D(FVector(4.0f, 4.0f, 4.0f));
+	Mesh->SetRelativeRotation(FRotator(0.0f, -90.0f, 0.0f));
+	Mesh->AttachTo(RootComponent);
 
+	MovementComponent = ObjectInitializer.CreateDefaultSubobject<UProjectileMovementComponent>(this, TEXT("MovementComponent"));
+	MovementComponent->bRotationFollowsVelocity = true;
 }
 
 void AGadgetBase::OnHit(AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
@@ -26,6 +34,7 @@ void AGadgetBase::OnHit(AActor* OtherActor, UPrimitiveComponent* OtherComp, FVec
 	if (OtherActor != NULL && OtherActor != this)
 	{
 		bIsActive = true;
+		GEngine->AddOnScreenDebugMessage(-1, 2.f, FColor::Red, "Spawning Decoy");
 		Activate();
 	}
 }
