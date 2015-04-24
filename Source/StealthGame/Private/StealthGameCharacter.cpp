@@ -86,7 +86,6 @@ void AStealthGameCharacter::OnCollision(AActor* OtherActor, UPrimitiveComponent*
 	AGuardCharacter* Guard = Cast<AGuardCharacter>(OtherActor);
 	if (Guard != NULL)
 	{
-		GEngine->AddOnScreenDebugMessage(-1, 2.f, FColor::Red, "Colliding with guard!");
 		bIsInStealth = false;
 	}
 }
@@ -175,13 +174,14 @@ void AStealthGameCharacter::ThrowGadget()
 	if (CanSpawnGadget())
 	{
 		bIsUsingGadget = true;
+
 		const FVector SpawnLocation = GetMesh()->GetSocketLocation(ThrowSocket);
 		const FRotator SpawnRotation = GetActorRotation();
 		FActorSpawnParameters SpawnParams;
 		SpawnParams.Instigator = Instigator;
 		SpawnParams.Owner = this;
 
-		AGadgetBase* SpawnGadget = GetWorld()->SpawnActor<AGadgetBase>(GadgetInventory[InventoryIndex-1], SpawnLocation, SpawnRotation, SpawnParams);
+		AGadgetBase* SpawnGadget = GetWorld()->SpawnActor<AGadgetBase>(GadgetInventory[InventoryIndex], SpawnLocation, SpawnRotation, SpawnParams);
 		CurrentGadget = SpawnGadget;
 		SpawnGadget->Activate();
 
@@ -210,17 +210,17 @@ void AStealthGameCharacter::DeactivateThrowMode()
 
 void AStealthGameCharacter::SelectTeleportGadget()
 {
-	InventoryIndex = 1;
+	InventoryIndex = 0;
 }
 
 void AStealthGameCharacter::SelectDecoyGadget()
 {
-	InventoryIndex = 2;
+	InventoryIndex = 1;
 }
 
 void AStealthGameCharacter::SelectDistractionGadget()
 {
-	InventoryIndex = 3;
+	InventoryIndex = 2;
 }
 
 bool AStealthGameCharacter::CanSpawnGadget()

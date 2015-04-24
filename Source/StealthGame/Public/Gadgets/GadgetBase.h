@@ -36,6 +36,8 @@ protected:
 	bool bIsActive = false;
 
 	EGadgetType GadgetType;
+
+	int32 NumGadgetsLeft = 3;
 	
 public:	
 	// Sets default values for this actor's properties
@@ -51,5 +53,8 @@ public:
 	FORCEINLINE USphereComponent* GetCollisionComponent() { return CollisionComponent; }
 
 	FORCEINLINE EGadgetType GetGadgetType() { return GadgetType; }
+
+	int32 GetNumGadgetsLeft();
+	void SetNumGadgetsLeft(int32 pNumGadgets);
 
 };

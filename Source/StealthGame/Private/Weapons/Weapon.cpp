@@ -138,7 +138,7 @@ void AWeapon::ProcessInstantHit(const FHitResult &Impact, const FVector &Origin,
 	AStealthGameCharacter *Player = Cast<AStealthGameCharacter>(Impact.GetActor());
 	if (Player && !Player->IsInStealth())
 	{
-		GEngine->AddOnScreenDebugMessage(-1, 2.f, FColor::Red, "Hit the player");
+		//GEngine->AddOnScreenDebugMessage(-1, 2.f, FColor::Red, "Hit the player");
 		Player->UpdateHealth(-(this->WeaponConfig.WeaponDamage));
 	}
 }

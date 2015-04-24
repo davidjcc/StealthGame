@@ -34,7 +34,16 @@ void AGadgetBase::OnHit(AActor* OtherActor, UPrimitiveComponent* OtherComp, FVec
 	if (OtherActor != NULL && OtherActor != this)
 	{
 		bIsActive = true;
-		GEngine->AddOnScreenDebugMessage(-1, 2.f, FColor::Red, "Spawning Decoy");
 		Activate();
 	}
+}
+
+void AGadgetBase::SetNumGadgetsLeft(int32 pNumGadgets)
+{
+	NumGadgetsLeft = pNumGadgets;
+}
+
+int32 AGadgetBase::GetNumGadgetsLeft()
+{
+	return NumGadgetsLeft;
 }

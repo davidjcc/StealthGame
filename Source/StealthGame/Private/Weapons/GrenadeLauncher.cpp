@@ -35,7 +35,7 @@ void AGrenadeLauncher::ProjectileFire()
 
 		if (GLProjectile)
 		{
-			GEngine->AddOnScreenDebugMessage(-1, 2.f, FColor::Red, "Firing projectile");
+			//GEngine->AddOnScreenDebugMessage(-1, 2.f, FColor::Red, "Firing projectile");
 		}
 
 		if (!WeaponConfig.InfiniteAmmo)

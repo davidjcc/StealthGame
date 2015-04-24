@@ -73,7 +73,7 @@ class AStealthGameCharacter : public ACharacter
 	bool bThrowMode = false;
 
 	UPROPERTY(BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
-	int32 InventoryIndex = 1;
+	int32 InventoryIndex = 0;
 
 	FName ThrowSocket = "ThrowSocket";
 
