@@ -45,6 +45,10 @@ AStealthGameCharacter::AStealthGameCharacter(const FObjectInitializer& ObjectIni
 
 	NumTeleportGadgets = FMath::Clamp(NumTeleportGadgets, 0, 5);
 	GadgetInventory.SetNum(3);
+	NumGadgetsLeft.SetNum(3);
+
+	for (int i = 0; i < NumGadgetsLeft.Num(); i++)
+		NumGadgetsLeft[i] = 3;
 }
 
 void AStealthGameCharacter::SetupPlayerInputComponent(UInputComponent* InputComponent)
@@ -72,7 +76,7 @@ void AStealthGameCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	DeathCheck();
+	//DeathCheck();
 	StealthCheck();
 }
 
@@ -110,6 +114,8 @@ void AStealthGameCharacter::UpdateHealth(float pHealth)
 {
 	if (!bInfiniteHealth)
 		Health = FMath::Clamp(Health + pHealth, 0.0f, 100.f);
+
+	DeathCheck();
 }
 
 float AStealthGameCharacter::GetStealthValue()
@@ -126,14 +132,6 @@ void AStealthGameCharacter::UpdateNumTeleportGadgets(int32 pTeleportGadgets)
 {
 	if (!bInfiniteGadgets)
 		NumTeleportGadgets = FMath::Clamp(NumTeleportGadgets + pTeleportGadgets, 0, 5);
-}
-
-void AStealthGameCharacter::DeathCheck()
-{
-	if (Health < 0.f)
-	{
-		// TODO: Implement this function
-	}
 }
 
 void AStealthGameCharacter::StealthCheck()
@@ -225,34 +223,22 @@ void AStealthGameCharacter::SelectDistractionGadget()
 
 bool AStealthGameCharacter::CanSpawnGadget()
 {
-	bool canSpawn = false;
-	for (int i = 0; i < GadgetInventory.Num(); ++i)
-	{
-		if (GadgetInventory[i] != NULL)
-			canSpawn = true;
-		else canSpawn = false;
-	}
+	return NumGadgetsLeft[InventoryIndex] > 0;
 
-	return canSpawn;
+// 	bool canSpawn = false;
+// 	for (int i = 0; i < GadgetInventory.Num(); ++i)
+// 	{
+// 		if (GadgetInventory[i] != NULL && NumGadgetsLeft[i] != 0)
+// 			canSpawn = true;
+// 		else canSpawn = false;
+// 	}
+// 
+// 	return canSpawn;
 }
 
 void AStealthGameCharacter::DetermineNumGadgetAmount()
 {
-	if (!bInfiniteGadgets)
-	{
-		switch (CurrentGadget->GetGadgetType())
-		{
-		case ETELEPORT:
-			NumTeleportGadgets = FMath::Clamp(NumTeleportGadgets - 1, 0, 100);
-			break;
-		case EDECOY:
-			NumDecoyGadgets = FMath::Clamp(NumDecoyGadgets - 1, 0, 100);
-			break;
-		case EDISTRACT:
-			NumDistractGadgets = FMath::Clamp(NumDistractGadgets - 1, 0, 100);
-			break;
-		default:
-			break;
-		}
+	if (!bInfiniteGadgets){
+		NumGadgetsLeft[InventoryIndex] = FMath::Clamp(NumGadgetsLeft[InventoryIndex] - 1, 0, 100);
 	}
 }

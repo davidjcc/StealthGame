@@ -48,6 +48,9 @@ class AStealthGameCharacter : public ACharacter
 
 	float StealthDecay = 0.3f;
 
+	UPROPERTY(BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
+	TArray<int32> NumGadgetsLeft;
+
 	UPROPERTY(BlueprintReadOnly, Category = Stealth, meta = (AllowPrivateAccess = "true"))
 	bool bIsInStealth = false;
 
@@ -113,6 +116,7 @@ public:
 	int32 GetNumTeleportGadgets(){	return NumTeleportGadgets; }
 	void UpdateNumTeleportGadgets(int32 pTeleportGadgets);
 
+	UFUNCTION(BlueprintImplementableEvent)
 	void DeathCheck();
 	void StealthCheck();
 

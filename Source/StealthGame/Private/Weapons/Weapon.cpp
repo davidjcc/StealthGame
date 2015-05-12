@@ -139,7 +139,7 @@ void AWeapon::ProcessInstantHit(const FHitResult &Impact, const FVector &Origin,
 	if (Player && !Player->IsInStealth())
 	{
 		//GEngine->AddOnScreenDebugMessage(-1, 2.f, FColor::Red, "Hit the player");
-		Player->UpdateHealth(-(this->WeaponConfig.WeaponDamage));
+		Player->UpdateHealth(-(WeaponConfig.WeaponDamage));
 	}
 }
 

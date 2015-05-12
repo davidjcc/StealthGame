@@ -10,7 +10,8 @@ class AStealthGameGameMode : public AGameMode
 
 public:
 	AStealthGameGameMode(const FObjectInitializer& ObjectInitializer);
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	int32 ActivatedLevels = 1;	
 };
-
-
 
