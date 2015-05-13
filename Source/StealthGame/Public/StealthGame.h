@@ -8,4 +8,6 @@
 DECLARE_LOG_CATEGORY_EXTERN(LogStealthGame, Log, All);
 
 
+int32 ActivatedLevels = 1;
+
 #endif

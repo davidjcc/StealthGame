@@ -111,10 +111,10 @@ public:
 	UFUNCTION(BlueprintCallable, Category = Stealth)
 	float GetStealthValue();
 	UFUNCTION(BlueprintCallable, Category = Stealth)
-	void UpdateStealthValue(float pStealthValue);
+	void UpdateStealthValue(float pStealthValue, bool pUpdateCurrentValue = true /* If true the current stealth value will update*/);
 
-	int32 GetNumTeleportGadgets(){	return NumTeleportGadgets; }
-	void UpdateNumTeleportGadgets(int32 pTeleportGadgets);
+	int32 GetNumSelectedGadget(int32 pArrayIndex);
+	void UpdateNumSelectedGadget(int32 pArrayIndex, int32 pUpdateValue);
 
 	UFUNCTION(BlueprintImplementableEvent)
 	void DeathCheck();
@@ -142,6 +142,9 @@ public:
 	// Called after a gadget is used to determine which gadget has been used so 
 	// it can decrement the correct slot
 	void DetermineNumGadgetAmount();
+
+	UFUNCTION(BlueprintCallable, Category = Gadgets)
+	void ClearInventory();
 
 };
 

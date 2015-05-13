@@ -12,7 +12,8 @@ namespace EPowerup
 	{
 		EHealthPowerup		UMETA(DisplayName = "Health"),
 		EStealthPowerup		UMETA(DisplayName = "Stealth"),
-		ETeleportGadget		UMETA(DisplayName = "Teleport Gadget")
+		ETeleportGadget		UMETA(DisplayName = "Teleport Gadget"),
+		EDecoyGadget		UMETA(DisplayName = "Decoy Gadget")
 	};
 }
 

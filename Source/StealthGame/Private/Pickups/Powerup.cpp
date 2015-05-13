@@ -77,7 +77,12 @@ void APowerup::OnPlayerOverlap(class AActor* OtherActor, class UPrimitiveCompone
 
 		case EPowerup::ETeleportGadget:
 			Pickup();		
-			//player->UpdateNumTeleportGadgets(1);
+			player->UpdateNumSelectedGadget(0, 1);
+			break;
+
+		case EPowerup::EDecoyGadget:
+			Pickup();
+			player->UpdateNumSelectedGadget(1, 1);
 			break;
 
 		default:

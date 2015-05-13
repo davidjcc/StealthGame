@@ -47,8 +47,8 @@ AStealthGameCharacter::AStealthGameCharacter(const FObjectInitializer& ObjectIni
 	GadgetInventory.SetNum(3);
 	NumGadgetsLeft.SetNum(3);
 
-	for (int i = 0; i < NumGadgetsLeft.Num(); i++)
-		NumGadgetsLeft[i] = 3;
+	ClearInventory();
+	UpdateStealthValue(0.0f, false);
 }
 
 void AStealthGameCharacter::SetupPlayerInputComponent(UInputComponent* InputComponent)
@@ -76,7 +76,6 @@ void AStealthGameCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	//DeathCheck();
 	StealthCheck();
 }
 
@@ -123,15 +122,26 @@ float AStealthGameCharacter::GetStealthValue()
 	return StealthValue;
 }
 
-void AStealthGameCharacter::UpdateStealthValue(float pStealthValue)
+void AStealthGameCharacter::UpdateStealthValue(float pStealthValue, bool pUpdateCurrentValue)
 {
-	StealthValue = FMath::Clamp(StealthValue + pStealthValue, 0.0f, 100.0f);
+	if (pUpdateCurrentValue)
+	{
+		StealthValue = FMath::Clamp(StealthValue + pStealthValue, 0.0f, 100.0f);
+	}
+	else
+	{
+		StealthValue = pStealthValue;
+	}
 }
 
-void AStealthGameCharacter::UpdateNumTeleportGadgets(int32 pTeleportGadgets)
+int32 AStealthGameCharacter::GetNumSelectedGadget(int32 pArrayIndex)
 {
-	if (!bInfiniteGadgets)
-		NumTeleportGadgets = FMath::Clamp(NumTeleportGadgets + pTeleportGadgets, 0, 5);
+	return NumGadgetsLeft[pArrayIndex];
+}
+
+void AStealthGameCharacter::UpdateNumSelectedGadget(int32 pArrayIndex, int32 pUpdateValue)
+{
+	NumGadgetsLeft[pArrayIndex] = FMath::Clamp(NumGadgetsLeft[pArrayIndex] + pUpdateValue, 0, 3);
 }
 
 void AStealthGameCharacter::StealthCheck()
@@ -240,5 +250,13 @@ void AStealthGameCharacter::DetermineNumGadgetAmount()
 {
 	if (!bInfiniteGadgets){
 		NumGadgetsLeft[InventoryIndex] = FMath::Clamp(NumGadgetsLeft[InventoryIndex] - 1, 0, 100);
+	}
+}
+
+void AStealthGameCharacter::ClearInventory()
+{
+	for (int i = 0; i < NumGadgetsLeft.Num(); i++)
+	{
+		NumGadgetsLeft[i] = 0;
 	}
 }
