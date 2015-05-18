@@ -9,9 +9,9 @@ UStealthGameInstance::UStealthGameInstance(const FObjectInitializer& ObjectIniti
 	
 }
 
-void UStealthGameInstance::IncrementLevelsActivated()
+void UStealthGameInstance::SetLevelsActivated(int32 pLevelsActivated)
 {
-	LevelsActivated++;
+	LevelsActivated = pLevelsActivated;
 }
 
 

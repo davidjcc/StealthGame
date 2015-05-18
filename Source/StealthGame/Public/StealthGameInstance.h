@@ -22,5 +22,5 @@ public:
 	int32 LevelsActivated = 0;
 
 	UFUNCTION(BlueprintCallable, Category = LevelsActivated)
-	void IncrementLevelsActivated();
+	void SetLevelsActivated(int32 pLevelsActivated);
 };
